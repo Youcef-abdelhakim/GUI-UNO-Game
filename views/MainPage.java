@@ -1,20 +1,24 @@
 package views;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import widgets.Container;
-import widgets.Frame;
-//! TODO : Theme Color must be in a special file as consts
-public class MainPage{
+import java.awt.FlowLayout;
+
+import widgets.*;
+
+public class MainPage {
     public MainPage() {
-        Frame mainFrame = new Frame("Uno!!", Color.CYAN,new Dimension(900,650));
-        Container cnt = new Container(new Dimension(150,600),Color.black);
-        cnt.adjustDimensionByLayout(new Dimension(350, 150));
-        mainFrame.addWidget(cnt,BorderLayout.WEST);
+        // Create frame with FlowLayout so card is shown properly
+        Frame mainFrame = new Frame("Uno!!", Color.BLUE, new Dimension(900, 650), new FlowLayout());
+
+        // Create a red card with value 9
+        UnoCard card = new UnoCard("red", "9");
+
+        // Add the card to the frame
+        mainFrame.addWidget(card);
     }
+
     public static void main(String[] args) {
         new MainPage();
     }
-    
 }
