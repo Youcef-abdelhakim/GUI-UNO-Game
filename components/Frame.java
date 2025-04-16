@@ -1,7 +1,7 @@
-package widgets;
+package components;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class Frame extends JFrame {
 
@@ -22,4 +22,6 @@ public class Frame extends JFrame {
     public void addWidget(JComponent widget, String constraints) {
         this.add(widget, constraints);
     }
+
+
 }
