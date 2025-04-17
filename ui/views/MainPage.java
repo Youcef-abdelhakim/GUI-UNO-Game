@@ -1,41 +1,46 @@
 package ui.views;
 
-import components.*;
-import java.awt.BorderLayout;
+import components.Frame;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.SwingUtilities;
-import util.*;
+import ui.widgets.MainPage.GameTitle;
+import ui.widgets.MainPage.NewAndLoadButton;
 
-public class MainPage {
 
+public final class MainPage {
+    public void createAndAdjustTitle(Frame mainFrame){
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        GameTitle g = new GameTitle(new FlowLayout());
+        g.setMargin(0, 0, 75, 0);
+        mainFrame.addWidget(g,constraints);
+    }
+    public void createAndAdjustListOfButtons(Frame mainFrame){
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        NewAndLoadButton n = new NewAndLoadButton();
+        n.setMargin(0, 0, 100, 0); 
+        mainFrame.addWidget(n,constraints);
+    }
+    
     public MainPage() {
-        Frame main = new Frame("Uno!!", Color.GRAY, new Dimension(900, 650), new BorderLayout());
-        Container left = new Container(new BorderLayout(), new Dimension(100, 10), new Color(0x4FD67A));
-        Container right = new Container(new FlowLayout(), new Dimension(100, 10), new Color(0x89D2DC));
-        Container topLeft = new Container();
-        Container centerLeft = new Container();
-        centerLeft.addLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        topLeft.makeBgTransparent();
-        topLeft.setMargin(50, 0, 0, 0);
-        topLeft.addWidget(new Title("UNO!!!", Util.loadCustomFont("src\\fonts\\Title Font\\Game Bubble.ttf", 75), Color.white));
-        centerLeft.addWidget(new Button("New Game", new Dimension(150, 25)));
-        centerLeft.makeBgTransparent();
-        centerLeft.setMargin(175, 0, 0, 0);
-        left.add(topLeft, BorderLayout.NORTH);
-        left.add(centerLeft, BorderLayout.CENTER);
-        right.addWidget(new ImagePanel("src\\images\\UNO!!.png", new Dimension(400, 400)));
-        DivideContainer<Container> mainContainer = new DivideContainer<>(DivideContainer.HORIZONTAL, left, right, 0.33);
-        main.addWidget(mainContainer);
+        Frame mainFrame = new Frame("UNO!!", new Color(0x042e54), new Dimension(900,650),new GridBagLayout());
+        createAndAdjustTitle(mainFrame);
+        createAndAdjustListOfButtons(mainFrame);
         SwingUtilities.invokeLater(() -> {
-            main.revalidate();
-            main.repaint();
-            mainContainer.setDividerLocation(0.4); // now it works
+            mainFrame.revalidate();
+            mainFrame.repaint();
         });
     }
 
     public static void main(String[] args) {
-        new MainPage();
+        @SuppressWarnings("unused")
+        MainPage main = new MainPage();
     }
 }

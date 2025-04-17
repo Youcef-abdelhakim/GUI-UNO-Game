@@ -36,7 +36,7 @@ public class Container extends JPanel {
         this.add(c);
     }
 
-    public void addWidget(JComponent c, String constraint) {
+    public void addWidget(JComponent c, Object constraint) {
         this.add(c, constraint);
     }
 
