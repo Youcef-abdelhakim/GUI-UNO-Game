@@ -17,6 +17,8 @@ public class GameTitle extends JComponent {
         GridBagConstraints titleConst = new GridBagConstraints();
         titleConst.gridx = 0;
         titleConst.gridy = 0;
+        titleConst.anchor = GridBagConstraints.CENTER;
+        titleConst.fill = GridBagConstraints.CENTER;
         add(gameTitle, titleConst);
         setOpaque(false);
     }

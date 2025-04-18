@@ -16,6 +16,21 @@ import ui.widgets.MainPage.NewAndLoadButton;
 
 public final class MainPage {
 
+    public void createAndAdjustMainContainer(Frame mainFrame,Container rightContainer,Container centerContainer,Container leftContainer){
+        DivideContainer<Container, Container> centerAndRight = new DivideContainer<>(DivideContainer.HORIZONTAL, centerContainer, rightContainer, 0.67f);
+        DivideContainer<Container, DivideContainer<Container, Container>> mainContainer = new DivideContainer<>(DivideContainer.HORIZONTAL, leftContainer, centerAndRight, 0.33f);
+        centerAndRight.setOpaque(false);
+        mainContainer.setOpaque(false);
+        GridBagConstraints mainConstraints = new GridBagConstraints();
+        mainConstraints.gridx = 0;
+        mainConstraints.gridy = 0;
+        mainConstraints.anchor = GridBagConstraints.CENTER;
+        mainConstraints.fill = GridBagConstraints.NONE;
+        mainConstraints.weightx = 1.0;
+        mainConstraints.weighty = 1.0;
+        mainFrame.addWidget(mainContainer, mainConstraints);
+    }
+    
     public void createAndAdjustTitle(Container conatiner) {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -23,15 +38,21 @@ public final class MainPage {
         GameTitle g = new GameTitle(new FlowLayout(FlowLayout.CENTER, 0, 0));
         g.setMargin(0, 0, 75, 0);
         g.setOpaque(false);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
         conatiner.addWidget(g, constraints);
     }
-
+    
     public void createAndAdjustListOfButtons(Container conatiner) {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
         NewAndLoadButton n = new NewAndLoadButton();
         n.setMargin(0, 0, 100, 0);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
         n.setOpaque(false);
         conatiner.addWidget(n, constraints);
     }
@@ -85,8 +106,13 @@ public final class MainPage {
         conatiner.addWidget(rightLogo, constraints);
     }
 
+    @SuppressWarnings("PointlessBitwiseExpression")
     public MainPage() {
         Frame mainFrame = new Frame("UNO!!", new Color(0x042e54), new Dimension(900, 650), new GridBagLayout());
+        
+        
+        
+        
         Container centerContainer = new Container();
         centerContainer.setLayout(new GridBagLayout());
         Container leftContainer = new Container();
@@ -106,15 +132,7 @@ public final class MainPage {
         rightContainer.setOpaque(false);
         leftContainer.setMargin(0, 0, 0, 100);
         rightContainer.setMargin(0, 100, 0, 0);
-        DivideContainer<Container, Container> centerAndRight = new DivideContainer<>(DivideContainer.HORIZONTAL, centerContainer, rightContainer, 0.67f);
-        DivideContainer<Container, DivideContainer<Container, Container>> mainContainer = new DivideContainer<>(DivideContainer.HORIZONTAL, leftContainer, centerAndRight, 0.33f);
-        centerAndRight.setOpaque(false);
-        mainContainer.setOpaque(false);
-        GridBagConstraints mainConstraints = new GridBagConstraints();
-        mainConstraints.gridx = 0;
-        mainConstraints.gridy = 0;
-        mainConstraints.anchor = GridBagConstraints.CENTER;
-        mainFrame.addWidget(mainContainer, mainConstraints);
+        createAndAdjustMainContainer(mainFrame, rightContainer, centerContainer, leftContainer);
         SwingUtilities.invokeLater(() -> {
             mainFrame.revalidate();
             mainFrame.repaint();
