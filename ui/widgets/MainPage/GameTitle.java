@@ -18,6 +18,7 @@ public class GameTitle extends JComponent {
         titleConst.gridx = 0;
         titleConst.gridy = 0;
         add(gameTitle, titleConst);
+        setOpaque(false);
     }
 
     public void setMargin(int top, int left, int bottom, int right) {

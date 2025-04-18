@@ -32,7 +32,7 @@ public class NewAndLoadButton extends JComponent {
 
         newGameButton.onHoverBrighten(-0.1f);
         loadGameButton.onHoverBrighten(-0.1f);
-        
+        setOpaque(false);
         add(newGameButton, newGameButtonConst);
         add(loadGameButton, loadGameButtonConst);
     }
