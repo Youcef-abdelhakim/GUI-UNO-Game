@@ -1,13 +1,14 @@
-package widgets;
+package ui.widgets;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class UnoCard extends JComponent {
-    private String color;
-    private String value;
+import components.Container;
+
+public class UnoCard extends Container {
+    private final String color;
+    private final String value;
     private boolean selected = false;
 
     public String getColor() {
@@ -19,6 +20,7 @@ public class UnoCard extends JComponent {
     }
 
     public UnoCard(String color, String value) {
+        super();
         this.color = color;
         this.value = value;
 
@@ -41,13 +43,13 @@ public class UnoCard extends JComponent {
 
         // Determine card background color
         Color bgColor;
-        switch (color.toLowerCase()) {
-            case "red": bgColor = Color.RED; break;
-            case "blue": bgColor = Color.BLUE; break;
-            case "green": bgColor = Color.GREEN; break;
-            case "yellow": bgColor = Color.YELLOW; break;
-            default: bgColor = Color.BLACK; break;
-        }
+        bgColor = switch (color.toLowerCase()) {
+            case "red" -> Color.RED;
+            case "blue" -> Color.BLUE;
+            case "green" -> Color.GREEN;
+            case "yellow" -> Color.YELLOW;
+            default -> Color.BLACK;
+        };
 
         // Draw card background
         g2.setColor(bgColor);
