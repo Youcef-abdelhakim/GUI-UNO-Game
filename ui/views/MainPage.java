@@ -111,8 +111,6 @@ public final class MainPage {
         Frame mainFrame = new Frame("UNO!!", new Color(0x042e54), new Dimension(900, 650), new GridBagLayout());
         
         
-        
-        
         Container centerContainer = new Container();
         centerContainer.setLayout(new GridBagLayout());
         Container leftContainer = new Container();
