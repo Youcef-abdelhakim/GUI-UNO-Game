@@ -2,7 +2,7 @@ package gameLogique;
 
 public class Card {
     
-    enum Color {
+    public enum Color {
         Red, Blue, Green, Yellow, Wild;
 
         private static final Color[] colors = Color.values();
@@ -12,7 +12,7 @@ public class Card {
         }
     }
 
-    enum Value {
+    public enum Value {
         Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine,
         Skip, Reverse, DrawTwo, Wild, WildDrawFour;
 
