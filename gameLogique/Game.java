@@ -5,11 +5,11 @@ import java.util.Scanner;
 
 public class Game {
 
-    private ArrayList<Player> players;
-    private Deck deck;
-    private ArrayList<Card> discardPile;
-    private int currentPlayerIndex;
-    private boolean isClockwise;
+    ArrayList<Player> players;
+    Deck deck;
+    ArrayList<Card> discardPile;
+    int currentPlayerIndex;
+    boolean isClockwise;
 
     public Game() {
         players = new ArrayList<>();

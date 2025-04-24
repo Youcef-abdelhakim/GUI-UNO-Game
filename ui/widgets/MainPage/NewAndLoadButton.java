@@ -6,11 +6,15 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import ui.views.MainPage;
+import ui.views.UnoNumberForm;
 import util.*;
 
 public class NewAndLoadButton extends JComponent {
+    private MainPage main;
     private void createAndAdjustNewButton(){
         Button newGameButton = new Button("New game", new Dimension(300, 50));
         newGameButton.setBGColor(new Color(0x93FF75));
@@ -23,6 +27,10 @@ public class NewAndLoadButton extends JComponent {
         newGameButtonConst.fill = GridBagConstraints.NONE;
         newGameButtonConst.anchor = GridBagConstraints.CENTER;
         newGameButton.onHoverBrighten(-0.1f);
+        newGameButton.addActionListener((ActionEvent e) -> {
+            new UnoNumberForm();
+            main.dispose();
+        });
         add(newGameButton, newGameButtonConst);
 
     }
@@ -40,8 +48,9 @@ public class NewAndLoadButton extends JComponent {
         add(loadGameButton, loadGameButtonConst);
 
     }
-    public NewAndLoadButton() {
+    public NewAndLoadButton(MainPage main) {
         super();
+        this.main = main;
         setLayout(new GridBagLayout());
         createAndAdjustNewButton();
         createAndAdjustLoadButton();

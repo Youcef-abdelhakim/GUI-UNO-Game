@@ -10,5 +10,8 @@ public class Text extends JLabel{
         this.setFont(font);
         this.setForeground(color);
     }
+    public Text(String text){
+        super(text);
+    }
     
 }
