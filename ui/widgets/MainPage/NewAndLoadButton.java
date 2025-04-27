@@ -1,22 +1,23 @@
 package ui.widgets.MainPage;
 
 import components.Button;
+import components.Container;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import ui.views.MainPage;
-import ui.views.UnoNumberForm;
 import util.*;
 
-public class NewAndLoadButton extends JComponent {
-    private MainPage main;
+public class NewAndLoadButton extends Container{
+    private Container main;
+    private Button newGameButton;
+    private Button loadGameButton;
+
     private void createAndAdjustNewButton(){
-        Button newGameButton = new Button("New game", new Dimension(300, 50));
+        newGameButton = new Button("New game", new Dimension(300, 50));
         newGameButton.setBGColor(new Color(0x93FF75));
         newGameButton.adjustFont(Util.loadCustomFont("src\\fonts\\Main font\\Roboto-Bold.ttf", 20));
         GridBagConstraints newGameButtonConst = new GridBagConstraints();
@@ -27,15 +28,12 @@ public class NewAndLoadButton extends JComponent {
         newGameButtonConst.fill = GridBagConstraints.NONE;
         newGameButtonConst.anchor = GridBagConstraints.CENTER;
         newGameButton.onHoverBrighten(-0.1f);
-        newGameButton.addActionListener((ActionEvent e) -> {
-            new UnoNumberForm();
-            main.dispose();
-        });
+
         add(newGameButton, newGameButtonConst);
 
     }
     private void createAndAdjustLoadButton(){
-        Button loadGameButton = new Button("Load game", new Dimension(300, 50));
+        loadGameButton = new Button("Load game", new Dimension(300, 50));
         loadGameButton.setBGColor(new Color(0xCACACA));
         loadGameButton.adjustFont(Util.loadCustomFont("src\\fonts\\Main font\\Roboto-Bold.ttf", 20));
         GridBagConstraints loadGameButtonConst = new GridBagConstraints();
@@ -50,7 +48,6 @@ public class NewAndLoadButton extends JComponent {
     }
     public NewAndLoadButton(MainPage main) {
         super();
-        this.main = main;
         setLayout(new GridBagLayout());
         createAndAdjustNewButton();
         createAndAdjustLoadButton();
@@ -58,5 +55,13 @@ public class NewAndLoadButton extends JComponent {
     }
     public void setMargin(int top, int left, int bottom, int right) {
         setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
+    }
+
+    public Button getNewGameButton() {
+        return newGameButton;
+    }
+
+    public Button getLoadGameButton() {
+        return loadGameButton;
     }
 }

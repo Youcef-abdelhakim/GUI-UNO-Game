@@ -5,11 +5,11 @@ import java.util.Scanner;
 
 public class Game {
 
-    ArrayList<Player> players;
-    Deck deck;
-    ArrayList<Card> discardPile;
-    int currentPlayerIndex;
-    boolean isClockwise;
+    private ArrayList<Player> players;
+    private Deck deck;
+    private ArrayList<Card> discardPile;
+    private int currentPlayerIndex;
+    private boolean isClockwise;
 
     public Game() {
         players = new ArrayList<>();
@@ -81,7 +81,6 @@ public class Game {
                 System.out.println("\n" + currentPlayer.getPlayerName() + " wins the game!");
                 break;
             }
-
             nextPlayer();
         }
     }

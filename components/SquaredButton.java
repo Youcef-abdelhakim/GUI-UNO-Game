@@ -6,10 +6,11 @@ import java.awt.Graphics;
 
 public class SquaredButton extends Button {
 
-    public SquaredButton(int size, Color color, String text,Color textColor) {
+    public SquaredButton(int size,Color color, String text,Color textColor) {
         super();
-        setPreferredSize(new Dimension(size, size));
         setBGColor(color);
+        setPreferredSize(new Dimension(size,size));
+        setSize(size, size);
         setText(text);
         setForeground(textColor);
     }
