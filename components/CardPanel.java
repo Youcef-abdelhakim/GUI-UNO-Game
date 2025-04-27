@@ -1,20 +1,16 @@
 package components;
-import gameLogique.Card.Color;
-import gameLogique.Card.Value;
+import gameLogique.Card;
 import java.util.HashMap;
 import java.awt.Dimension;
 
 
 public class CardPanel {
-    private Value value;
-    private Color color;
+    private Card card;
     private ImagePanel cardImage ;
-    private static HashMap<String, ImagePanel> cardImages = new HashMap<>();
+    private static HashMap<Card, ImagePanel> cardImages = new HashMap<>();
 
-    public CardPanel(Color color, Value value) {
-        this.value = value;
-        this.color = color;
-        String key = color + "_" + value;
+    public CardPanel(Card card) {
+        Card key = card;
 
         if(!cardImages.containsKey(key)) {
             loadImage(key);
@@ -23,10 +19,9 @@ public class CardPanel {
         this.cardImage = cardImages.get(key);
     }
 
-    private void loadImage(String key) {
-        String imagePath = "src/mages/" + key + ".png";
+    private void loadImage(Card key) {
         Dimension dimension = new Dimension(100, 150);
-        ImagePanel imagePanel = new ImagePanel(imagePath, dimension);
+        ImagePanel imagePanel = new ImagePanel(card.getImagePath(), dimension);
         cardImages.put(key, imagePanel);
 
 

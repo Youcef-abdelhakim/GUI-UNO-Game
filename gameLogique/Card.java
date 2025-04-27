@@ -26,10 +26,12 @@ public class Card {
 
     private final Color color;
     private final Value value;
+    private String imagePath ;
 
     public Card(Color color, Value value) {
         this.color = color;
         this.value = value;
+        imagePath = "/cardimages/" +color + "_" + value+ ".png";
     }
 
     public Color getColor() {
@@ -44,5 +46,10 @@ public class Card {
     public String toString() {
         return color + " " + value;
     }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
 
 }
