@@ -14,7 +14,7 @@ import ui.widgets.MainPage.NewAndLoadButton;
 import ui.widgets.UnoFrame;
 
 public final class MainPage extends UnoFrame {
-
+    NewAndLoadButton newAndLoadButton;
     public void createAndAdjustMainContainer(Container rightContainer, Container centerContainer, Container leftContainer) {
         leftContainer.setOpaque(false);
         centerContainer.setOpaque(false);
@@ -52,13 +52,13 @@ public final class MainPage extends UnoFrame {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        NewAndLoadButton n = new NewAndLoadButton(this);
-        n.setMargin(0, 0, 100, 0);
+        newAndLoadButton = new NewAndLoadButton(this);
+        newAndLoadButton.setMargin(0, 0, 100, 0);
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0;
         constraints.weighty = 0;
-        n.setOpaque(false);
-        conatiner.addWidget(n, constraints);
+        newAndLoadButton.setOpaque(false);
+        conatiner.addWidget(newAndLoadButton, constraints);
     }
 
     public void createAndAdjustTopLeftLogo(Container conatiner) {
@@ -136,5 +136,9 @@ public final class MainPage extends UnoFrame {
     public static void main(String[] args) {
         @SuppressWarnings("unused")
         MainPage main = new MainPage();
+    }
+
+    public NewAndLoadButton getNewAndLoadButton() {
+        return newAndLoadButton;
     }
 }

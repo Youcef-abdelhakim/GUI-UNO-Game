@@ -1,8 +1,10 @@
-package components;
+package ui.widgets.GamePage;
 import gameLogique.Card.Color;
 import gameLogique.Card.Value;
-import java.util.HashMap;
 import java.awt.Dimension;
+import java.util.HashMap;
+
+import components.ImagePanel;
 
 
 public class CardPanel {
@@ -28,8 +30,6 @@ public class CardPanel {
         Dimension dimension = new Dimension(100, 150);
         ImagePanel imagePanel = new ImagePanel(imagePath, dimension);
         cardImages.put(key, imagePanel);
-
-
     }
     
     public ImagePanel getCardImage() {
