@@ -1,6 +1,5 @@
 package controller;
 
-import gameLogique.Game;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import ui.views.MainPage;
@@ -17,9 +16,8 @@ public class MainPageController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Game game = new Game();
             UnoNumberForm page = new UnoNumberForm();
-            GameSetupController gsc = new GameSetupController(game, page);
+            PlayerNumberController gsc = new PlayerNumberController(page);
             mainPage.dispose();
         }
         

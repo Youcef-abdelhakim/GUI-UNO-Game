@@ -1,20 +1,17 @@
 package controller;
 
 import components.MessageDialog;
-import gameLogique.Game;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import ui.views.MainPage;
 import ui.views.UnoNameForm;
 import ui.views.UnoNumberForm;
 
-public class GameSetupController {
+public class PlayerNumberController {
 
-    Game gameModel;
     UnoNumberForm gameSetupView;
 
-    public GameSetupController(Game gameModel, UnoNumberForm gameSetupView) {
-        this.gameModel = gameModel;
+    public PlayerNumberController(UnoNumberForm gameSetupView) {
         this.gameSetupView = gameSetupView;
         this.gameSetupView.getReturnButton().addActionListener(new ReturnButtonAction());
         this.gameSetupView.getNextButton().addActionListener(new NextButtonController());
@@ -24,7 +21,8 @@ public class GameSetupController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            new MainPage();
+            MainPage view = new MainPage();
+            MainPageController mgc = new MainPageController(view);
             gameSetupView.dispose();
         }
     }
@@ -39,15 +37,21 @@ public class GameSetupController {
                 int numberOfHumans = Integer.parseInt(gameSetupView.getHumanField().getText());
 
                 if (numberOfPlayers < 2 || numberOfPlayers > 4) {
-
+                    gameSetupView.getPlayersField().setText("");
+                    gameSetupView.getHumanField().setText("");
                     messageDialog.show("Enter a number of players between 2 and 4.");
                 } else if (numberOfHumans < 0 || numberOfHumans > numberOfPlayers) {
+                    gameSetupView.getPlayersField().setText("");
+                    gameSetupView.getHumanField().setText("");
                     messageDialog.show("Invalid number of humans.");
                 } else {
-                    new UnoNameForm(numberOfHumans);
+                    UnoNameForm view1 = new UnoNameForm(numberOfPlayers,numberOfHumans);
+                    PlayersNameController pnc = new PlayersNameController(view1,numberOfPlayers,numberOfHumans);
                     gameSetupView.dispose();
                 }
             } catch (NumberFormatException ex) {
+                gameSetupView.getPlayersField().setText("");
+                gameSetupView.getHumanField().setText("");
                 messageDialog.show("Please enter valid numbers.");
             }
         }

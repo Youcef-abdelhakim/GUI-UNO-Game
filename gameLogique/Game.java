@@ -11,8 +11,8 @@ public class Game {
     private int currentPlayerIndex;
     private boolean isClockwise;
 
-    public Game() {
-        players = new ArrayList<>();
+    public Game(ArrayList<Player> players) {
+        this.players = (ArrayList<Player>) players.clone();
         deck = new Deck();
         discardPile = new ArrayList<>();
         currentPlayerIndex = 0;
@@ -20,39 +20,8 @@ public class Game {
     }
 
     public void setupGame() {
-        Scanner scanner = new Scanner(System.in);
-        int numPlayers;
-        do {
-            System.out.print("Enter the number of players (2-4): ");
-            numPlayers = scanner.nextInt();
-        } while (numPlayers < 2 || numPlayers > 4);
-
-        int numHumans;
-        do {
-            System.out.print("Enter the number of human players (1-" + numPlayers + "): ");
-            numHumans = scanner.nextInt();
-        } while (numHumans < 1 || numHumans > numPlayers);
-
-        scanner.nextLine();
-
-        for (int i = 1; i <= numHumans; i++) {
-            System.out.print("Enter the name of human player " + i + ": ");
-            String playerName = scanner.nextLine();
-            players.add(new Player(playerName, "Human"));
-        }
-
-        int numBots = numPlayers - numHumans;
-        for (int i = 1; i <= numBots; i++) {
-            players.add(new Player("Bot" + i, "Bot"));
-        }
-
         dealCards();
         discardPile.add(deck.drawCard());
-
-        System.out.println("\nGame setup complete! Here are the players:");
-        for (Player player : players) {
-            System.out.println(player.getPlayerName() + " (" + player.getPlayerType() + ")");
-        }
     }
 
     private void dealCards() {
@@ -206,7 +175,7 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        Game game = new Game();
+        Game game = new Game(null);
         game.setupGame();
         game.startGame();
     }
