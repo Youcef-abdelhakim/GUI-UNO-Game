@@ -21,7 +21,7 @@ public class PlayersNameController {
         this.numberOfHumans = numberOfHumans;
         this.numberOfPlayers = numberOfPlayers;
         this.view.getButtons().getReturnButton().addActionListener(new ReturnButtonAction());
-        this.view.getButtons().getPlayButton().addActionListener(null);
+        this.view.getButtons().getPlayButton().addActionListener(new PlayButtonAction());
     }
 
 
@@ -43,6 +43,7 @@ public class PlayersNameController {
             MessageDialog messageDialog = new MessageDialog();
             ArrayList<Player> players = new ArrayList<>(numberOfPlayers);
             for (TextZone elem : view.getNamesForm().getPlayerFields()) {
+                test = false;
                 if ("".equals(elem.getText())){
                     messageDialog.show("Empty Field,fill it");
                     players.clear();
@@ -50,8 +51,8 @@ public class PlayersNameController {
                 }else{
                     Player player = new Player(elem.getText(), "Player");
                     players.add(player);
-                    test = true;
                 }
+                test = true;
             }
             if (test){
                 for (int i = numberOfHumans; i < numberOfPlayers ; i++) {
@@ -61,6 +62,7 @@ public class PlayersNameController {
                 model = new Game(players);
                 model.setupGame();
                 new GamePage();
+                System.out.println(model);
                 view.dispose();
             }
             

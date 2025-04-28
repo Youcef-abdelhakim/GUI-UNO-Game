@@ -7,9 +7,7 @@ import components.Frame;
 import components.Padding;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
 import javax.swing.BoxLayout;
-import ui.views.GamePage;
 
 public class Buttons extends Container {
     Button returnButton;
@@ -23,7 +21,7 @@ public class Buttons extends Container {
         add(returnButton);
 
 
-        Button playButton = new Button("PLAY!!");
+        playButton = new Button("PLAY!!");
         playButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         playButton.setForeground(Color.BLACK);
         playButton.setBackground(Color.GREEN);
@@ -32,12 +30,6 @@ public class Buttons extends Container {
         add(new Padding(0, 10));
         add(playButton);
         setOpaque(false);
-
-        // Action du bouton
-        playButton.addActionListener((ActionEvent e) -> {
-            new GamePage();
-            frame.dispose();
-        });
     }
 
     public Button getReturnButton() {

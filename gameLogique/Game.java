@@ -11,6 +11,15 @@ public class Game {
     private int currentPlayerIndex;
     private boolean isClockwise;
 
+    @Override
+    public String toString() {
+        String text = "";
+        for (Player elem : players) {
+            text = text + elem.getPlayerName() + " "+ elem.getPlayerType() + " " + elem.getPlayerHnad() + '\n';
+        }
+        return text;
+    }
+    
     public Game(ArrayList<Player> players) {
         this.players = (ArrayList<Player>) players.clone();
         deck = new Deck();

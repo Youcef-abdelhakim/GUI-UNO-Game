@@ -4,7 +4,6 @@ import components.*;
 import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.SwingUtilities;
 import ui.widgets.UnoFrame;
 import ui.widgets.UnoNameForm.Buttons;
 import ui.widgets.UnoNameForm.NamesForm;
@@ -33,12 +32,6 @@ public class UnoNameForm extends UnoFrame {
         buttons = new Buttons(this);
         container.add(buttons);
         this.add(container);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(()->{
-            new UnoNameForm(4,4);
-        });
     }
 
     public NamesForm getNamesForm() {
