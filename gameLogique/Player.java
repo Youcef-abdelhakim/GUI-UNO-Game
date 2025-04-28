@@ -13,6 +13,7 @@ public class Player {
         this.playerHnad = new ArrayList<>();
     }
 
+
     public String getPlayerType() {
         return PlayerType;
     }
@@ -26,6 +27,10 @@ public class Player {
     
     public void addToHand(Card card) {
         playerHnad.add(card);
+    }
+
+    public String getName() {
+        return playerName;
     }
 
 }

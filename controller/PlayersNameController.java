@@ -61,7 +61,7 @@ public class PlayersNameController {
                 }
                 model = new Game(players);
                 model.setupGame();
-                new GamePage();
+                new GamePage(model);
                 System.out.println(model);
                 view.dispose();
             }

@@ -13,6 +13,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import ui.widgets.GamePage.PlayerListPanel;
+import gameLogique.Game;
+import gameLogique.Player;
+import gameLogique.Card;
 
 public class GamePage {
     private GameFrame gameFrame;
@@ -22,23 +25,27 @@ public class GamePage {
     private Button unoBtn;
     private Panel playerHandPanel;
     private PlayerListPanel playerListPanel;
-    private String[] players = {"player1", "player2", "player3", "player4"};
+    private ArrayList<Player> players;
+    private String[] playersName;
     private int currentPlayerIndex = 0;
     private ArrayList<String> playerHand = new ArrayList<>();
 
     private ArrayList<ImageIcon> cardIcons = new ArrayList<>();
     private HashMap<String, ImageIcon> cardImageMap = new HashMap<>();
 
-    public GamePage() {
+    public GamePage(Game game) {
         // Initialize frame with null layout for absolute positioning
         gameFrame = new GameFrame("UNO Game", new Color(0x042e54), new Dimension(900, 700), null);
-        
+        players = game.getPlayers();
 
         // Load all card images
         loadAllCardImages();
 
         // 1. Player list (top left corner)
-        playerListPanel = new PlayerListPanel(players);
+        playersName = players.stream()
+                .map(Player::getName)
+                .toArray(String[]::new);
+        playerListPanel = new PlayerListPanel(playersName);
         playerListPanel.setBounds(30, 30, 200, 200);
         gameFrame.addWidget(playerListPanel);
 
@@ -79,17 +86,17 @@ public class GamePage {
         gameFrame.addWidget(unoBtn);
 
         // Example hand setup
-        playerHand.add("Nine_Red.png");
-        playerHand.add("One_Blue.png");
-        playerHand.add("Six_Red.png");
-        playerHand.add("Eigth_Yellow.png");
-        playerHand.add("Nine_Green.png");
-        playerHand.add("Nine_Red.png");
-        playerHand.add("One_Blue.png");
-        playerHand.add("Six_Red.png");
-        playerHand.add("Eigth_Yellow.png");
-        playerHand.add("Nine_Green.png");
-        
+        // playerHand.add("Nine_Red.png");
+        // playerHand.add("One_Blue.png");
+        // playerHand.add("Six_Red.png");
+        // playerHand.add("Eigth_Yellow.png");
+        // playerHand.add("Nine_Green.png");
+        // playerHand.add("Nine_Red.png");
+        // playerHand.add("One_Blue.png");
+        // playerHand.add("Six_Red.png");
+        // playerHand.add("Eigth_Yellow.png");
+        // playerHand.add("Nine_Green.png");
+
         // Show initial cards
         showPlayerHand();
 
@@ -100,11 +107,11 @@ public class GamePage {
 
     private void showPlayerHand() {
         playerHandPanel.removeAll();
-        
+
         // Fixed card dimensions
         int cardWidth = 100; // Fixed width for all cards
         int cardHeight = 150; // Fixed height
-        
+
         for (String cardName : playerHand) {
             Button card = new Button();
             ImageIcon icon = cardImageMap.get(cardName);
@@ -119,44 +126,35 @@ public class GamePage {
                 playerHandPanel.add(card);
             }
         }
-        
+
         // Calculate total width needed
         FlowLayout layout = (FlowLayout) playerHandPanel.getLayout();
         int hgap = layout.getHgap();
         int totalWidth = (cardWidth + hgap) * playerHand.size();
         playerHandPanel.setPreferredSize(new Dimension(totalWidth, cardHeight));
-        
+
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
     }
 
     private void loadAllCardImages() {
-        // List of all possible UNO card names
-        String[] colors = {"Red", "Blue", "Green", "Yellow"};
-        String[] numbers = {"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eigth", "Nine"};
-        String[] actions = {"Skip", "Reverse", "Plus_Two"};
-        String[] wilds = {"Wild", "WildFour"};
-        
+        Card.Value[] values = Card.Value.values();
+        Card.Color[] colors = Card.Color.values();
+    
         try {
-            // Load colored number cards
-            for (String number : numbers) {
-                for (String color : colors) {
-                    loadCardImage(number + "_" + color + ".png");
+            for (Card.Value value : values) {
+                if (value == Card.Value.Wild || value == Card.Value.WildDrawFour) {
+                    // Wild cards: color is Wild
+                    loadCardImage("Wild_" + value + ".png");
+                } else {
+                    for (Card.Color color : colors) {
+                        if (color != Card.Color.Wild) { // Only normal colors
+                            loadCardImage(value + "_" + color + ".png");
+                        }
+                    }
                 }
             }
-            
-            // Load colored action cards
-            for (String action : actions) {
-                for (String color : colors) {
-                    loadCardImage(action + "_" + color + ".png");
-                }
-            }
-            
-            // Load wild cards
-            for (String wild : wilds) {
-                loadCardImage(wild + ".png");
-            }
-            
+    
             System.out.println("Loaded " + cardIcons.size() + " card images");
         } catch (Exception e) {
             System.err.println("Error loading card images");
@@ -164,6 +162,7 @@ public class GamePage {
         }
     }
     
+
     private void loadCardImage(String filename) {
         try {
             URL imageUrl = getClass().getResource("/cardimages/" + filename);
@@ -219,12 +218,8 @@ public class GamePage {
         unoBtn.setEnabled(playerHand.size() == 1);
 
         // Move to next player
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-        currentPlayerLabel.setText(players[currentPlayerIndex] + "'s turn");
+        currentPlayerIndex = (currentPlayerIndex + 1) % playersName.length;
+        currentPlayerLabel.setText(playersName[currentPlayerIndex] + "'s turn");
         playerListPanel.updateCurrentPlayer(currentPlayerIndex);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GamePage());
     }
 }

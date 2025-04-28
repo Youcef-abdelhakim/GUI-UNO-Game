@@ -175,6 +175,22 @@ public class Game {
         }
     }
 
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public ArrayList<Card> getDiscardPile() {
+        return discardPile;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
     private void nextPlayer() {
         currentPlayerIndex = (currentPlayerIndex + (isClockwise ? 1 : -1) + players.size()) % players.size();
     }
