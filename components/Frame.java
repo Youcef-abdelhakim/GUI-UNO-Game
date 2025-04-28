@@ -23,4 +23,13 @@ public class Frame extends JFrame {
         this.add(widget, constraints);
     }
 
+    // In your GameFrame class
+    public void addWidget(Component component) {  // Changed from JComponent to Component
+        this.add(component);
+    }
+    
+    public void addWidget(Component component, Object constraints) {
+        this.add(component, constraints);
+    }
+
 }
