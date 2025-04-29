@@ -2,7 +2,6 @@ package gameLogique;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import javax.swing.JOptionPane;
 
 public class Game {
 
@@ -10,14 +9,14 @@ public class Game {
     private Deck deck;
     private ArrayList<Card> discardPile;
     private int currentPlayerIndex;
-    private int lastPlayerIndex; // Track the player who played the last card
+    private int lastPlayerIndex;
     private boolean isClockwise;
 
     @Override
     public String toString() {
         String text = "";
         for (Player elem : players) {
-            text = text + elem.getPlayerName() + " "+ elem.getPlayerType() + " " + elem.getPlayerHnad() + '\n';
+            text = text + elem.getPlayerName() + " " + elem.getPlayerType() + " " + elem.getPlayerHnad() + '\n';
         }
         return text;
     }
@@ -33,20 +32,17 @@ public class Game {
     public void setupGame() {
         dealCards();
         discardPile.add(deck.drawCard());
-        lastPlayerIndex = -1; // Initialize lastPlayerIndex
+        lastPlayerIndex = -1;
     }
 
-
     private void dealCards() {
-        // First, ensure the deck has enough cards for all players
         int totalCardsNeeded = players.size() * 7;
         if (deck.getRemainingCards() < totalCardsNeeded) {
             throw new IllegalStateException("Not enough cards in the deck to deal to all players");
         }
     
-        // Deal exactly 7 cards to each player
         for (Player player : players) {
-            player.getPlayerHnad().clear(); // Clear any existing cards
+            player.getPlayerHnad().clear();
             for (int i = 0; i < 7; i++) {
                 Card card = deck.drawCard();
                 if (card != null) {
@@ -76,7 +72,7 @@ public class Game {
                 System.out.println("\n" + currentPlayer.getPlayerName() + " wins the game!");
                 break;
             }
-            nextPlayer();
+            // No nextPlayer() call here; applyCardEffect handles turn progression
         }
     }
 
@@ -88,7 +84,6 @@ public class Game {
         }
         System.out.println("Top card on the discard pile: " + discardPile.get(discardPile.size() - 1));
     
-        // Check if player has any valid moves
         boolean hasValidMove = player.getPlayerHnad().stream().anyMatch(this::isValidMove);
         
         if (!hasValidMove) {
@@ -110,13 +105,14 @@ public class Game {
                 hasValidMove = player.getPlayerHnad().stream().anyMatch(this::isValidMove);
             }
             System.out.println("No playable cards drawn or chose not to play them.");
+            nextPlayer(); // Advance turn if no play
             return;
         }
     
         while (true) {
             System.out.print("Enter the index of the card to play (or -1 to draw): ");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine();
     
             if (choice == -1) {
                 handleVoluntaryDraw(player);
@@ -141,7 +137,6 @@ public class Game {
         System.out.println(player.getPlayerName() + " is thinking...");
         ArrayList<Card> hand = player.getPlayerHnad();
         
-        // First check if bot has any valid moves
         boolean hasValidMove = hand.stream().anyMatch(this::isValidMove);
         
         if (!hasValidMove) {
@@ -160,10 +155,10 @@ public class Game {
                 hasValidMove = hand.stream().anyMatch(this::isValidMove);
             }
             System.out.println(player.getPlayerName() + " couldn't draw a playable card.");
+            nextPlayer(); // Advance turn if no play
             return;
         }
     
-        // Play first valid card found (simple bot strategy)
         for (int i = 0; i < hand.size(); i++) {
             Card card = hand.get(i);
             if (isValidMove(card)) {
@@ -188,7 +183,11 @@ public class Game {
                 player.getPlayerHnad().remove(drawnCard);
                 discardPile.add(drawnCard);
                 applyCardEffect(drawnCard, player);
+            } else {
+                nextPlayer(); // Advance turn if player chooses not to play
             }
+        } else {
+            nextPlayer(); // Advance turn if drawn card isn't playable
         }
     }
 
@@ -201,18 +200,14 @@ public class Game {
                 Card drawnCard = deck.drawCard();
                 player.addToHand(drawnCard);
                 cardsDrawn++;
-                
                 if (isValidMove(drawnCard)) {
                     drawnPlayableCard = true;
-                    // Don't automatically play it - let player decide
                 }
             } catch (IllegalStateException e) {
-                // Deck is empty
                 break;
             }
         }
         
-        // Return whether a playable card was drawn
         return drawnPlayableCard;
     }
 
@@ -226,57 +221,61 @@ public class Game {
 
     public void applyCardEffect(Card card, Player currentPlayer) {
         lastPlayerIndex = currentPlayerIndex;
-        
+        int direction = isClockwise ? 1 : -1;
+
         switch (card.getValue()) {
-            case Skip -> {
-                JOptionPane.showMessageDialog(null, "Next player is skipped!");
-                nextPlayer();
-            }
-            case Reverse -> {
-                JOptionPane.showMessageDialog(null, "Turn order reversed!");
+            case Skip:
+                System.out.println("Next player is skipped!");
+                currentPlayerIndex = (currentPlayerIndex + 2 * direction + players.size()) % players.size();
+                break;
+            case Reverse:
+                System.out.println("Turn order reversed!");
                 isClockwise = !isClockwise;
                 if (players.size() == 2) {
-                    nextPlayer(); // Acts like skip in 2-player game
+                    // Acts like Skip: current player plays again
+                    currentPlayerIndex = (currentPlayerIndex + 2 * direction + players.size()) % players.size();
+                } else {
+                    // Move to previous player in new direction
+                    direction = isClockwise ? 1 : -1;
+                    currentPlayerIndex = (currentPlayerIndex + direction + players.size()) % players.size();
                 }
-            }
-            case DrawTwo -> {
-                JOptionPane.showMessageDialog(null, "Next player draws 2 cards and is skipped!");
-                nextPlayer();
-                Player nextPlayer = players.get(currentPlayerIndex);
+                break;
+            case DrawTwo:
+                System.out.println("Next player draws 2 cards and is skipped!");
+                int drawTwoIndex = (currentPlayerIndex + direction + players.size()) % players.size();
+                Player drawTwoPlayer = players.get(drawTwoIndex);
                 for (int i = 0; i < 2; i++) {
                     if (!deck.isEmpty()) {
-                        nextPlayer.addToHand(deck.drawCard());
+                        drawTwoPlayer.addToHand(deck.drawCard());
                     }
                 }
-                nextPlayer(); // Skip their turn
-            }
-            case Wild -> {
-                // For Wild cards, the color is already set before calling applyCardEffect
-                // Just need to handle the turn transition
-                nextPlayer();
-            }
-            case WildDrawFour -> {
-                // For Wild Draw Four, the color is already set
-                JOptionPane.showMessageDialog(null, "Next player draws 4 cards and is skipped!");
-                nextPlayer();
-                Player drawFourPlayer = players.get(currentPlayerIndex);
+                currentPlayerIndex = (drawTwoIndex + direction + players.size()) % players.size();
+                break;
+            case Wild:
+                System.out.println("Wild card played! Color changed to " + card.getColor());
+                currentPlayerIndex = (currentPlayerIndex + direction + players.size()) % players.size();
+                break;
+            case WildDrawFour:
+                System.out.println("Wild Draw Four played! Next player draws 4 cards");
+                int drawFourIndex = (currentPlayerIndex + direction + players.size()) % players.size();
+                Player drawFourPlayer = players.get(drawFourIndex);
                 for (int i = 0; i < 4; i++) {
                     if (!deck.isEmpty()) {
                         drawFourPlayer.addToHand(deck.drawCard());
                     }
                 }
-                nextPlayer(); // Skip their turn
-            }
-            default -> {
-                // Normal card - just move to next player
-                nextPlayer();
-            }
+                currentPlayerIndex = (drawFourIndex + direction + players.size()) % players.size();
+                break;
+            default:
+                // Normal card
+                currentPlayerIndex = (currentPlayerIndex + direction + players.size()) % players.size();
+                break;
         }
     }
 
-    private Card.Color chooseMostCommonColor(Player player) {
+    public Card.Color chooseMostCommonColor(Player player) {
         Card.Color[] colors = Card.Color.values();
-        int[] colorCounts = new int[4]; // Red, Blue, Green, Yellow
+        int[] colorCounts = new int[4];
         
         for (Card c : player.getPlayerHnad()) {
             if (c.getColor() != Card.Color.Wild) {
@@ -315,15 +314,16 @@ public class Game {
     }
 
     public void nextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        int direction = isClockwise ? 1 : -1;
+        currentPlayerIndex = (currentPlayerIndex + direction + players.size()) % players.size();
     }
 
     private void prevPlayer() {
-        currentPlayerIndex = (currentPlayerIndex - (isClockwise ? 1 : -1) + players.size()) % players.size();
+        int direction = isClockwise ? 1 : -1;
+        currentPlayerIndex = (currentPlayerIndex - direction + players.size()) % players.size();
     }
 
     public static void main(String[] args) {
-        // Create a list of players for testing
         ArrayList<Player> testPlayers = new ArrayList<>();
         testPlayers.add(new Player("Player 1", "Human"));
         testPlayers.add(new Player("Player 2", "Bot"));
