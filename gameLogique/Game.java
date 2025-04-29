@@ -36,7 +36,13 @@ public class Game {
     private void dealCards() {
         for (Player player : players) {
             for (int i = 0; i < 7; i++) {
-                player.addToHand(deck.drawCard());
+                Card card = deck.drawCard();
+                if (card != null) {
+                    player.addToHand(card);
+                } else {
+                    System.err.println("Warning: Deck is empty while dealing cards!");
+                    break;
+                }
             }
         }
     }
@@ -113,7 +119,7 @@ public class Game {
         System.out.println(player.getPlayerName() + " drew a card.");
     }
 
-    boolean isValidMove(Card card) {
+    public boolean isValidMove(Card card) {
         Card topCard = discardPile.get(discardPile.size() - 1);
         if (topCard.getValue() == Card.Value.Wild || topCard.getValue() == Card.Value.WildDrawFour) {
             return true;
@@ -121,7 +127,7 @@ public class Game {
         return card.getColor() == topCard.getColor() || card.getValue() == topCard.getValue() || card.getColor() == Card.Color.Wild;
     }
 
-    private void applyCardEffect(Card card) {
+    public void applyCardEffect(Card card) {
         switch (card.getValue()) {
             case Skip:
                 System.out.println("Next player is skipped!");
@@ -191,8 +197,8 @@ public class Game {
         return currentPlayerIndex;
     }
 
-    private void nextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + (isClockwise ? 1 : -1) + players.size()) % players.size();
+    public void nextPlayer() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
 
     private void prevPlayer() {
@@ -200,7 +206,12 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        Game game = new Game(null);
+        // Create a list of players for testing
+        ArrayList<Player> testPlayers = new ArrayList<>();
+        testPlayers.add(new Player("Player 1", "Human"));
+        testPlayers.add(new Player("Player 2", "Bot"));
+        
+        Game game = new Game(testPlayers);
         game.setupGame();
         game.startGame();
     }

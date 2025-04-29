@@ -22,7 +22,7 @@ public class GamePage {
     private Label lastCardPlayed;
     private Label lastCardLabel;
     private Label currentPlayerLabel;
-    private Button unoBtn;
+    private Button drawCardBtn;
     private Panel playerHandPanel;
     private PlayerListPanel playerListPanel;
     private ArrayList<Player> players;
@@ -81,15 +81,14 @@ public class GamePage {
         currentPlayerLabel.setBounds(50, 620, 300, 30);
         gameFrame.addWidget(currentPlayerLabel);
 
-        // Create UNO button
-        unoBtn = new Button("UNO");
-        unoBtn.setBounds(700, 610, 150, 50);
-        unoBtn.setBGColor(Color.GRAY);
-        unoBtn.setForeground(Color.BLACK);
-        unoBtn.adjustFont(new Font("Arial", Font.BOLD, 24));
-        unoBtn.setEnabled(false);
-        unoBtn.addActionListener(e -> handleUnoCall());
-        gameFrame.addWidget(unoBtn);
+        // Create Draw Card button
+        drawCardBtn = new Button("Draw Card");
+        drawCardBtn.setBounds(700, 610, 150, 50);
+        drawCardBtn.setBGColor(new Color(0x1a73e8));
+        drawCardBtn.setForeground(Color.WHITE);
+        drawCardBtn.adjustFont(new Font("Arial", Font.BOLD, 20));
+        drawCardBtn.addActionListener(e -> handleDrawCard());
+        gameFrame.addWidget(drawCardBtn);
     }
 
     private void initializeGame() {
@@ -108,48 +107,67 @@ public class GamePage {
 
     private void updatePlayerHand() {
         playerHand = new ArrayList<>();
-        for (Card card : game.getCurrentPlayerIndex().getPlayerHnad()) {
+        Player currentPlayer = players.get(game.getCurrentPlayerIndex());
+        for (Card card : currentPlayer.getPlayerHnad()) {
             playerHand.add(card.toString());
         }
-        unoBtn.setEnabled(playerHand.size() == 1);
-        unoBtn.setBGColor(playerHand.size() == 1 ? Color.GREEN : Color.GRAY);
     }
 
     private void updateLastPlayedCard() {
         ArrayList<Card> discardPile = game.getDiscardPile();
         if (!discardPile.isEmpty()) {
             Card lastCard = discardPile.get(discardPile.size() - 1);
-            setCardImage(lastCardPlayed, lastCard.toString() + ".png");
+            // Convert card to the correct format for image lookup
+            String cardName = lastCard.getColor() + " " + lastCard.getValue();
+            setCardImage(lastCardPlayed, cardName);
         }
     }
 
     private void updateCurrentPlayer() {
-        currentPlayerIndex = game.getCurrentPlayerIndex().getPlayerIndex();
+        currentPlayerIndex = game.getCurrentPlayerIndex();
         currentPlayerLabel.setText(playersName[currentPlayerIndex] + "'s turn");
         playerListPanel.updateCurrentPlayer(currentPlayerIndex);
     }
 
-    private void handleUnoCall() {
-        // TODO: Implement UNO call logic
-        JOptionPane.showMessageDialog(gameFrame, "UNO called!");
+    private void handleDrawCard() {
+        Player currentPlayer = players.get(game.getCurrentPlayerIndex());
+        if (currentPlayer.getPlayerType().equals("Human")) {
+            try {
+                Card drawnCard = game.getDeck().drawCard();
+                currentPlayer.addToHand(drawnCard);
+                updateGameState();
+                JOptionPane.showMessageDialog(gameFrame, "You drew: " + drawnCard);
+                // Move to next player after drawing
+                game.nextPlayer();
+                updateGameState();
+            } catch (IllegalStateException e) {
+                JOptionPane.showMessageDialog(gameFrame, "The deck is empty!");
+            }
+        }
     }
 
     private void playCard(String cardName) {
+        Player currentPlayer = players.get(game.getCurrentPlayerIndex());
         Card playedCard = null;
-        for (Card card : game.getCurrentPlayerIndex().getPlayerHnad()) {
+        for (Card card : currentPlayer.getPlayerHnad()) {
             if (card.toString().equals(cardName)) {
                 playedCard = card;
                 break;
             }
         }
 
-        if (playedCard != null && game.isValidMove(playedCard)) {
-            game.getCurrentPlayerIndex().getPlayerHnad().remove(playedCard);
-            game.getDiscardPile().add(playedCard);
-            game.applyCardEffect(playedCard);
-            updateGameState();
-        } else {
-            JOptionPane.showMessageDialog(gameFrame, "Invalid move! You cannot play that card.");
+        if (playedCard != null) {
+            // Try to play the card through game logic
+            if (game.isValidMove(playedCard)) {
+                currentPlayer.getPlayerHnad().remove(playedCard);
+                game.getDiscardPile().add(playedCard);
+                game.applyCardEffect(playedCard);
+                // Move to next player after playing a card
+                game.nextPlayer();
+                updateGameState();
+            } else {
+                JOptionPane.showMessageDialog(gameFrame, "Invalid move! You cannot play that card.");
+            }
         }
     }
 
@@ -160,7 +178,21 @@ public class GamePage {
 
         for (String cardName : playerHand) {
             Button card = new Button();
-            ImageIcon icon = cardImageMap.get(cardName);
+            // Convert card name to the correct image filename format
+            String[] parts = cardName.split(" ");
+            String color = parts[0];
+            String value = parts[1];
+            
+            // Handle special cases for Wild cards
+            if (value.equals("Wild")) {
+                value = "Wild";
+            } else if (value.equals("WildDrawFour")) {
+                value = "WildDrawFour";
+            }
+            
+            String filename = value + "_" + color + ".png";
+            ImageIcon icon = cardImageMap.get(filename);
+            
             if (icon != null) {
                 Image scaled = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                 card.setIcon(new ImageIcon(scaled));
@@ -170,6 +202,8 @@ public class GamePage {
                 card.setContentAreaFilled(false);
                 card.addActionListener(e -> playCard(cardName));
                 playerHandPanel.add(card);
+            } else {
+                System.err.println("Could not find image for card: " + cardName);
             }
         }
 
@@ -201,22 +235,43 @@ public class GamePage {
 
     private void loadCardImage(String filename) {
         try {
-            URL imageUrl = getClass().getResource("/cardimages/" + filename);
+            // Use the correct path to the cardimages directory
+            URL imageUrl = getClass().getClassLoader().getResource("cardimages/" + filename);
             if (imageUrl != null) {
                 ImageIcon icon = new ImageIcon(imageUrl);
                 cardIcons.add(icon);
+                // Store the full filename as the key
                 cardImageMap.put(filename, icon);
+            } else {
+                System.err.println("Could not find image: " + filename);
             }
         } catch (Exception e) {
             System.err.println("Error loading image: " + filename);
+            e.printStackTrace();
         }
     }
 
-    private void setCardImage(Label label, String filename) {
+    private void setCardImage(Label label, String cardName) {
+        // Convert card name to the correct image filename format
+        String[] parts = cardName.split(" ");
+        String color = parts[0];
+        String value = parts[1];
+        
+        // Handle special cases for Wild cards
+        if (value.equals("Wild")) {
+            value = "Wild";
+        } else if (value.equals("WildDrawFour")) {
+            value = "WildDrawFour";
+        }
+        
+        String filename = value + "_" + color + ".png";
         ImageIcon icon = cardImageMap.get(filename);
+        
         if (icon != null) {
             Image scaled = icon.getImage().getScaledInstance(150, 230, Image.SCALE_SMOOTH);
             label.setIcon(new ImageIcon(scaled));
+        } else {
+            System.err.println("Image not found in map: " + filename);
         }
     }
 }

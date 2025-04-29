@@ -26,7 +26,9 @@ public class Player {
     }
     
     public void addToHand(Card card) {
-        playerHnad.add(card);
+        if (!playerHnad.contains(card)) {
+            playerHnad.add(card);
+        }
     }
 
     public String getName() {
