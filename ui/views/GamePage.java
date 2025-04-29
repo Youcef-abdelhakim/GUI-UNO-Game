@@ -28,89 +28,135 @@ public class GamePage {
     private ArrayList<Player> players;
     private String[] playersName;
     private int currentPlayerIndex = 0;
-    private ArrayList<String> playerHand = new ArrayList<>();
+    private ArrayList<String> playerHand;
+    private Game game;
 
     private ArrayList<ImageIcon> cardIcons = new ArrayList<>();
     private HashMap<String, ImageIcon> cardImageMap = new HashMap<>();
 
     public GamePage(Game game) {
-        // Initialize frame with null layout for absolute positioning
+        this.game = game;
+        initializeUI();
+        initializeGame();
+    }
+
+    private void initializeUI() {
+        // Initialize frame
         gameFrame = new GameFrame("UNO Game", new Color(0x042e54), new Dimension(900, 700), null);
+        
+        // Initialize players list
         players = game.getPlayers();
+        playersName = new String[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            playersName[i] = players.get(i).getName();
+        }
 
-        // Load all card images
-        loadAllCardImages();
-
-        // 1. Player list (top left corner)
-        playersName = players.stream()
-                .map(Player::getName)
-                .toArray(String[]::new);
+        // Create player list panel
         playerListPanel = new PlayerListPanel(playersName);
         playerListPanel.setBounds(30, 30, 200, 200);
         gameFrame.addWidget(playerListPanel);
 
-        // 2. "The last card played" text (full width top)
+        // Create last card played label
         lastCardLabel = new Label("LAST CARD PLAYED", Label.CENTER);
-        lastCardLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        lastCardLabel.adjustFont(new Font("Arial", Font.BOLD, 30));
         lastCardLabel.setTextColor(Color.WHITE);
         lastCardLabel.setBounds(0, 10, 900, 50);
         gameFrame.addWidget(lastCardLabel);
 
-        // 3. Last played card (center of screen)
+        // Create last played card display
         lastCardPlayed = new Label();
         lastCardPlayed.setBounds(375, 110, 150, 230);
-        setCardImage(lastCardPlayed, "Nine_Blue.png");
         gameFrame.addWidget(lastCardPlayed);
 
-        // 4. Player's hand cards with scrolling
+        // Create player's hand panel
         playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-        JScrollPane handScrollPane = playerHandPanel.makeScrollable(780, 140);
+        JScrollPane handScrollPane = new JScrollPane(playerHandPanel);
         handScrollPane.setBounds(50, 400, 800, 185);
         gameFrame.addWidget(handScrollPane);
 
-        // 5. Player's turn indicator (bottom left)
-        currentPlayerLabel = new Label("PLAYER 1'S TURN", Label.LEFT);
-        currentPlayerLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        // Create current player label
+        currentPlayerLabel = new Label("", Label.LEFT);
+        currentPlayerLabel.adjustFont(new Font("Arial", Font.BOLD, 20));
         currentPlayerLabel.setTextColor(Color.WHITE);
         currentPlayerLabel.setBounds(50, 620, 300, 30);
         gameFrame.addWidget(currentPlayerLabel);
 
-        // 6. UNO button (bottom right)
+        // Create UNO button
         unoBtn = new Button("UNO");
         unoBtn.setBounds(700, 610, 150, 50);
         unoBtn.setBGColor(Color.GRAY);
         unoBtn.setForeground(Color.BLACK);
         unoBtn.adjustFont(new Font("Arial", Font.BOLD, 24));
         unoBtn.setEnabled(false);
-        unoBtn.addActionListener(e -> JOptionPane.showMessageDialog(gameFrame, "UNO called!"));
+        unoBtn.addActionListener(e -> handleUnoCall());
         gameFrame.addWidget(unoBtn);
+    }
 
-        // Example hand setup
-        // playerHand.add("Nine_Red.png");
-        // playerHand.add("One_Blue.png");
-        // playerHand.add("Six_Red.png");
-        // playerHand.add("Eigth_Yellow.png");
-        // playerHand.add("Nine_Green.png");
-        // playerHand.add("Nine_Red.png");
-        // playerHand.add("One_Blue.png");
-        // playerHand.add("Six_Red.png");
-        // playerHand.add("Eigth_Yellow.png");
-        // playerHand.add("Nine_Green.png");
+    private void initializeGame() {
+        // Initialize game state
+        game.setupGame();
+        loadAllCardImages();
+        updateGameState();
+    }
 
-        // Show initial cards
+    private void updateGameState() {
+        updatePlayerHand();
+        updateLastPlayedCard();
+        updateCurrentPlayer();
         showPlayerHand();
+    }
 
-        // Refresh frame
-        gameFrame.revalidate();
-        gameFrame.repaint();
+    private void updatePlayerHand() {
+        playerHand = new ArrayList<>();
+        for (Card card : game.getCurrentPlayerIndex().getPlayerHnad()) {
+            playerHand.add(card.toString());
+        }
+        unoBtn.setEnabled(playerHand.size() == 1);
+        unoBtn.setBGColor(playerHand.size() == 1 ? Color.GREEN : Color.GRAY);
+    }
+
+    private void updateLastPlayedCard() {
+        ArrayList<Card> discardPile = game.getDiscardPile();
+        if (!discardPile.isEmpty()) {
+            Card lastCard = discardPile.get(discardPile.size() - 1);
+            setCardImage(lastCardPlayed, lastCard.toString() + ".png");
+        }
+    }
+
+    private void updateCurrentPlayer() {
+        currentPlayerIndex = game.getCurrentPlayerIndex().getPlayerIndex();
+        currentPlayerLabel.setText(playersName[currentPlayerIndex] + "'s turn");
+        playerListPanel.updateCurrentPlayer(currentPlayerIndex);
+    }
+
+    private void handleUnoCall() {
+        // TODO: Implement UNO call logic
+        JOptionPane.showMessageDialog(gameFrame, "UNO called!");
+    }
+
+    private void playCard(String cardName) {
+        Card playedCard = null;
+        for (Card card : game.getCurrentPlayerIndex().getPlayerHnad()) {
+            if (card.toString().equals(cardName)) {
+                playedCard = card;
+                break;
+            }
+        }
+
+        if (playedCard != null && game.isValidMove(playedCard)) {
+            game.getCurrentPlayerIndex().getPlayerHnad().remove(playedCard);
+            game.getDiscardPile().add(playedCard);
+            game.applyCardEffect(playedCard);
+            updateGameState();
+        } else {
+            JOptionPane.showMessageDialog(gameFrame, "Invalid move! You cannot play that card.");
+        }
     }
 
     private void showPlayerHand() {
         playerHandPanel.removeAll();
-
-        // Fixed card dimensions
-        int cardWidth = 100; // Fixed width for all cards
-        int cardHeight = 150; // Fixed height
+        int cardWidth = 100;
+        int cardHeight = 150;
 
         for (String cardName : playerHand) {
             Button card = new Button();
@@ -119,19 +165,13 @@ public class GamePage {
                 Image scaled = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                 card.setIcon(new ImageIcon(scaled));
                 card.setPreferredSize(new Dimension(cardWidth, cardHeight));
-                card.setMaximumSize(new Dimension(cardWidth, cardHeight)); // Prevent stretching
+                card.setMaximumSize(new Dimension(cardWidth, cardHeight));
                 card.setBorder(null);
                 card.setContentAreaFilled(false);
                 card.addActionListener(e -> playCard(cardName));
                 playerHandPanel.add(card);
             }
         }
-
-        // Calculate total width needed
-        FlowLayout layout = (FlowLayout) playerHandPanel.getLayout();
-        int hgap = layout.getHgap();
-        int totalWidth = (cardWidth + hgap) * playerHand.size();
-        playerHandPanel.setPreferredSize(new Dimension(totalWidth, cardHeight));
 
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
@@ -140,28 +180,24 @@ public class GamePage {
     private void loadAllCardImages() {
         Card.Value[] values = Card.Value.values();
         Card.Color[] colors = Card.Color.values();
-    
+
         try {
             for (Card.Value value : values) {
                 if (value == Card.Value.Wild || value == Card.Value.WildDrawFour) {
-                    // Wild cards: color is Wild
                     loadCardImage("Wild_" + value + ".png");
                 } else {
                     for (Card.Color color : colors) {
-                        if (color != Card.Color.Wild) { // Only normal colors
+                        if (color != Card.Color.Wild) {
                             loadCardImage(value + "_" + color + ".png");
                         }
                     }
                 }
             }
-    
-            System.out.println("Loaded " + cardIcons.size() + " card images");
         } catch (Exception e) {
             System.err.println("Error loading card images");
             e.printStackTrace();
         }
     }
-    
 
     private void loadCardImage(String filename) {
         try {
@@ -170,12 +206,9 @@ public class GamePage {
                 ImageIcon icon = new ImageIcon(imageUrl);
                 cardIcons.add(icon);
                 cardImageMap.put(filename, icon);
-            } else {
-                System.err.println("Card image not found: " + filename);
             }
         } catch (Exception e) {
             System.err.println("Error loading image: " + filename);
-            e.printStackTrace();
         }
     }
 
@@ -184,42 +217,6 @@ public class GamePage {
         if (icon != null) {
             Image scaled = icon.getImage().getScaledInstance(150, 230, Image.SCALE_SMOOTH);
             label.setIcon(new ImageIcon(scaled));
-        } else {
-            label.setText("Card Missing");
-            System.err.println("Card image not loaded: " + filename);
         }
-    }
-
-    private void showCards() {
-        playerHandPanel.removeAll();
-        for (String cardName : playerHand) {
-            Button card = new Button();
-            ImageIcon icon = cardImageMap.get(cardName);
-            if (icon != null) {
-                Image scaled = icon.getImage().getScaledInstance(80, 120, Image.SCALE_SMOOTH);
-                card.setIcon(new ImageIcon(scaled));
-                card.setBorder(null);
-                card.setContentAreaFilled(false);
-                card.addActionListener(e -> playCard(cardName));
-                playerHandPanel.add(card);
-            }
-        }
-        playerHandPanel.revalidate();
-        playerHandPanel.repaint();
-    }
-
-    private void playCard(String cardName) {
-        playerHand.remove(cardName);
-        setCardImage(lastCardPlayed, cardName);
-        showPlayerHand();
-
-        // UNO check
-        unoBtn.setBGColor(playerHand.size() == 1 ? Color.GREEN : Color.GRAY);
-        unoBtn.setEnabled(playerHand.size() == 1);
-
-        // Move to next player
-        currentPlayerIndex = (currentPlayerIndex + 1) % playersName.length;
-        currentPlayerLabel.setText(playersName[currentPlayerIndex] + "'s turn");
-        playerListPanel.updateCurrentPlayer(currentPlayerIndex);
     }
 }

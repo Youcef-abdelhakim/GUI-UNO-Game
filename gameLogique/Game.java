@@ -113,7 +113,7 @@ public class Game {
         System.out.println(player.getPlayerName() + " drew a card.");
     }
 
-    private boolean isValidMove(Card card) {
+    boolean isValidMove(Card card) {
         Card topCard = discardPile.get(discardPile.size() - 1);
         if (topCard.getValue() == Card.Value.Wild || topCard.getValue() == Card.Value.WildDrawFour) {
             return true;
