@@ -4,65 +4,75 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Deck {
-    
     private ArrayList<Card> cards;
-    private int cardInDeck;
+    private int cardInDeck; // Points to the next card to be drawn
 
     public Deck() {
         cards = new ArrayList<>();
-        Card.Color[] colors = Card.Color.values();
-        cardInDeck = 0;
-
-        // Add one zero card and two of each other number card for each color
-        for (int i = 0; i < colors.length - 1; i++) {
-            Card.Color color = colors[i];
-            
-            // Add one zero card
-            cards.add(new Card(color, Card.Value.Zero));
-            cardInDeck++;
-            
-            // Add two of each number card (1-9)
-            for (int j = 1; j <= 9; j++) {
-                cards.add(new Card(color, Card.Value.getValues(j)));
-                cards.add(new Card(color, Card.Value.getValues(j)));
-                cardInDeck += 2;
-            }
-            
-            // Add two of each action card (Skip, Reverse, DrawTwo)
-            for (int j = 10; j <= 12; j++) {
-                cards.add(new Card(color, Card.Value.getValues(j)));
-                cards.add(new Card(color, Card.Value.getValues(j)));
-                cardInDeck += 2;
-            }
-        }
-
-        // Add Wild cards (4 of each type)
-        Card.Value[] wValues = {Card.Value.Wild, Card.Value.WildDrawFour};
-        for (Card.Value value : wValues) {
-            for (int i = 0; i < 4; i++) {
-                cards.add(new Card(Card.Color.Wild, value));
-                cardInDeck++;
-            }
-        }
-
+        initializeDeck();
         shuffleDeck();
-        cardInDeck = cards.size() - 1;
     }
 
-    // Method to shuffle the deck
+    private void initializeDeck() {
+        Card.Color[] colors = Card.Color.values();
+        
+        // Add number cards (1-9) and action cards
+        for (Card.Color color : colors) {
+            if (color == Card.Color.Wild) continue;
+            
+            // One zero per color
+            cards.add(new Card(color, Card.Value.Zero));
+            
+            // Two of each number (1-9) per color
+            for (int value = 1; value <= 9; value++) {
+                cards.add(new Card(color, Card.Value.getValues(value)));
+                cards.add(new Card(color, Card.Value.getValues(value)));
+            }
+            
+            // Two of each action card per color
+            cards.add(new Card(color, Card.Value.Skip));
+            cards.add(new Card(color, Card.Value.Skip));
+            cards.add(new Card(color, Card.Value.Reverse));
+            cards.add(new Card(color, Card.Value.Reverse));
+            cards.add(new Card(color, Card.Value.DrawTwo));
+            cards.add(new Card(color, Card.Value.DrawTwo));
+        }
+        
+        // Add wild cards (4 of each)
+        for (int i = 0; i < 4; i++) {
+            cards.add(new Card(Card.Color.Wild, Card.Value.Wild));
+            cards.add(new Card(Card.Color.Wild, Card.Value.WildDrawFour));
+        }
+    }
+
     public void shuffleDeck() {
         Collections.shuffle(cards);
+        cardInDeck = 0; // Reset draw pointer
     }
 
     public boolean isEmpty() {
-        return cardInDeck < 0;
+        return cardInDeck >= cards.size();
     }
 
     public Card drawCard() {
         if (isEmpty()) {
             throw new IllegalStateException("Deck is empty!");
         }
-        return cards.get(cardInDeck--); 
+        return cards.get(cardInDeck++);
     }
 
+    public int getRemainingCards() {
+        return cards.size() - cardInDeck;
+    }
+
+    public void reshuffle(ArrayList<Card> discardPile) {
+        if (discardPile.size() > 1) {
+            Card topCard = discardPile.remove(discardPile.size() - 1);
+            cards.clear();
+            cards.addAll(discardPile);
+            discardPile.clear();
+            discardPile.add(topCard);
+            shuffleDeck();
+        }
+    }
 }
