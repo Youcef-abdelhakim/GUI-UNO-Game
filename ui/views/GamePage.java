@@ -1,9 +1,13 @@
 package ui.views;
 
 import components.Button;
+import components.ColorOptionPanel;
 import components.GameFrame;
+import components.Imagecon;
 import components.Label;
 import components.Panel;
+import components.ScrollPane;
+import components.TimeBot;
 import gameLogique.Card;
 import gameLogique.Game;
 import gameLogique.Player;
@@ -11,10 +15,7 @@ import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.Timer;
 import ui.widgets.GamePage.PlayerListPanel;
 
 public class GamePage {
@@ -33,8 +34,8 @@ public class GamePage {
     private ArrayList<String> playerHand;
     private Game game;
 
-    private ArrayList<ImageIcon> cardIcons = new ArrayList<>();
-    private HashMap<String, ImageIcon> cardImageMap = new HashMap<>();
+    private ArrayList<Imagecon> cardIcons = new ArrayList<>();
+    private HashMap<String, Imagecon> cardImageMap = new HashMap<>();
 
     public GamePage(Game game) {
         this.game = game;
@@ -66,18 +67,18 @@ public class GamePage {
         // Configure constraints for lastCardLabel
         gbcCenter.gridx = 0;
         gbcCenter.gridy = 0;
-        gbcCenter.anchor = GridBagConstraints.NORTHWEST; // Align to top-left of the cell
-        gbcCenter.insets = new Insets(45, 0, 0, 0); // Move 20px up, 30px left
+        gbcCenter.anchor = GridBagConstraints.NORTHWEST;
+        gbcCenter.insets = new Insets(45, 0, 0, 0);
         lastCardLabel = new Label("LAST CARD PLAYED", Label.CENTER);
         lastCardLabel.adjustFont(new Font("Arial", Font.BOLD, 30));
         lastCardLabel.setTextColor(Color.WHITE);
         centerTopPanel.add(lastCardLabel, gbcCenter);
 
-        // Configure constraints for lastCardPlayed (unchanged)
+        // Configure constraints for lastCardPlayed
         gbcCenter.gridx = 0;
         gbcCenter.gridy = 1;
-        gbcCenter.anchor = GridBagConstraints.CENTER; // Reset anchor for the card
-        gbcCenter.insets = new Insets(0, 0, 0, 0); // Reset insets
+        gbcCenter.anchor = GridBagConstraints.CENTER;
+        gbcCenter.insets = new Insets(0, 0, 0, 0);
         lastCardPlayed = new Label();
         centerTopPanel.add(lastCardPlayed, gbcCenter);
 
@@ -86,22 +87,22 @@ public class GamePage {
 
         // Center panel with GridBagLayout to hold the handScrollPane
         Panel centerPanel = new Panel(new GridBagLayout());
-        centerPanel.setBackground(new Color(0x042e54)); // Matches frame background
+        centerPanel.setBackground(new Color(0x042e54));
 
         // Player Hand Panel with FlowLayout for horizontal arrangement
         playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        playerHandPanel.setBackground(new Color(0xE0E0E0)); // Light gray background
-        JScrollPane handScrollPane = new JScrollPane(playerHandPanel);
-        handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        handScrollPane.setPreferredSize(new Dimension(800, 150)); // Fixed height matching cards
+        playerHandPanel.setBackground(new Color(0xE0E0E0));
+        ScrollPane handScrollPane = new ScrollPane(playerHandPanel);
+        handScrollPane.setHorizontalScrollBarPolicy(ScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        handScrollPane.setVerticalScrollBarPolicy(ScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        handScrollPane.setPreferredSize(new Dimension(800, 165));
 
-        // Add handScrollPane to centerPanel with a top margin to move it downward
+        // Add handScrollPane to centerPanel
         GridBagConstraints gbcHand = new GridBagConstraints();
         gbcHand.gridx = 0;
         gbcHand.gridy = 0;
         gbcHand.anchor = GridBagConstraints.CENTER;
-        gbcHand.insets = new Insets(20, 0, 0, 0); // 20px top margin to move it down
+        gbcHand.insets = new Insets(20, 0, 0, 0);
         centerPanel.add(handScrollPane, gbcHand);
 
         gameFrame.addWidget(centerPanel, BorderLayout.CENTER);
@@ -130,7 +131,7 @@ public class GamePage {
 
         gameFrame.addWidget(bottomPanel, BorderLayout.SOUTH);
 
-        // Additional labels (if needed)
+        // Additional labels
         drawCardLabel = new Label("", Label.CENTER);
         drawCardLabel.adjustFont(new Font("Arial", Font.BOLD, 16));
         drawCardLabel.setTextColor(Color.WHITE);
@@ -170,21 +171,19 @@ public class GamePage {
         
         Player currentPlayer = players.get(game.getCurrentPlayerIndex());
         if (currentPlayer.getPlayerType().equals("Bot")) {
-            Timer timer = new Timer(1000, e -> {
+            TimeBot.createBotTimer(1000, () -> {
                 handleBotTurn();
                 if (!currentPlayer.getPlayerHnad().isEmpty()) {
                     updateGameState();
                 }
-            });
-            timer.setRepeats(false);
-            timer.start();
+            }).start();
         }
 
         if (currentPlayer.getPlayerHnad().isEmpty()) {
-            JOptionPane.showMessageDialog(gameFrame,
+            ColorOptionPanel.showMessageDialog(gameFrame,
                 currentPlayer.getName() + " wins the game!",
                 "Game Over",
-                JOptionPane.INFORMATION_MESSAGE);
+                ColorOptionPanel.INFORMATION_MESSAGE);
         }
     }
 
@@ -224,10 +223,10 @@ public class GamePage {
                 }
                 
                 if (hasValidMove) {
-                    JOptionPane.showMessageDialog(gameFrame, 
+                    ColorOptionPanel.showMessageDialog(gameFrame, 
                         "You already have playable cards! You must play one before drawing.",
                         "Cannot Draw", 
-                        JOptionPane.WARNING_MESSAGE);
+                        ColorOptionPanel.WARNING_MESSAGE);
                     return;
                 }
                 
@@ -237,12 +236,12 @@ public class GamePage {
                 StringBuilder drawMessage = new StringBuilder(currentPlayer.getName() + " drew: " + drawnCard);
                 
                 if (game.isValidMove(drawnCard)) {
-                    int choice = JOptionPane.showConfirmDialog(gameFrame,
+                    int choice = ColorOptionPanel.showConfirmDialog(gameFrame,
                         "You drew a playable card: " + drawnCard + "\nDo you want to play it?",
                         "Play Drawn Card?",
-                        JOptionPane.YES_NO_OPTION);
+                        ColorOptionPanel.YES_NO_OPTION);
                     
-                    if (choice == JOptionPane.YES_OPTION) {
+                    if (choice == ColorOptionPanel.YES_OPTION) {
                         currentPlayer.getPlayerHnad().remove(drawnCard);
                         game.getDiscardPile().add(drawnCard);
                         
@@ -261,18 +260,18 @@ public class GamePage {
                     drawMessage.append("\n\n" + currentPlayer.getName() + " couldn't play the drawn card.");
                 }
                 
-                JOptionPane.showMessageDialog(gameFrame,
+                ColorOptionPanel.showMessageDialog(gameFrame,
                     drawMessage.toString(),
                     "Card Drawn",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    ColorOptionPanel.INFORMATION_MESSAGE);
                 
                 updateGameState();
                 
             } catch (IllegalStateException e) {
-                JOptionPane.showMessageDialog(gameFrame, 
+                ColorOptionPanel.showMessageDialog(gameFrame, 
                     "The deck is empty!", 
                     "Error", 
-                    JOptionPane.ERROR_MESSAGE);
+                    ColorOptionPanel.ERROR_MESSAGE);
             }
         }
     }
@@ -299,60 +298,58 @@ public class GamePage {
                 updateGameState();
             }
         } else {
-            JOptionPane.showMessageDialog(gameFrame, "Invalid move! You cannot play that card.");
+            ColorOptionPanel.showMessageDialog(gameFrame, "Invalid move! You cannot play that card.");
         }
     }
 
     private void handleWildCardSelection(Card wildCard, Player currentPlayer) {
         currentPlayer.getPlayerHnad().remove(wildCard);
         
-        Object[] options = {"Red", "Blue", "Green", "Yellow"};
-        int choice = JOptionPane.showOptionDialog(gameFrame,
+        String[] colorOptions = {"Red", "Blue", "Green", "Yellow"};
+        Card.Color[] enumColors = {
+            Card.Color.Red, Card.Color.Blue, 
+            Card.Color.Green, Card.Color.Yellow
+        };
+
+        String selectedColorName = (String) JOptionPane.showInputDialog(
+            gameFrame,
             "Choose a color for the Wild card:",
             "Color Selection",
-            JOptionPane.DEFAULT_OPTION,
             JOptionPane.QUESTION_MESSAGE,
             null,
-            options,
-            options[0]);
-        
-        if (choice == JOptionPane.CLOSED_OPTION) {
-            // If dialog was closed, default to Red
-            choice = 0;
-        }
-        
+            colorOptions,
+            colorOptions[0]
+        );
+
+        // Default to Red if dialog is closed
         Card.Color selectedColor = Card.Color.Red;
-        switch (choice) {
-            case 0: selectedColor = Card.Color.Red; break;
-            case 1: selectedColor = Card.Color.Blue; break;
-            case 2: selectedColor = Card.Color.Green; break;
-            case 3: selectedColor = Card.Color.Yellow; break;
+        if (selectedColorName != null) {
+            for (int i = 0; i < colorOptions.length; i++) {
+                if (colorOptions[i].equals(selectedColorName)) {
+                    selectedColor = enumColors[i];
+                    break;
+                }
+            }
         }
-        
-        // Create a new card with the selected color
+
+        // Create new card with selected color
         Card coloredCard = new Card(selectedColor, wildCard.getValue());
         game.getDiscardPile().add(coloredCard);
-        
-        // Apply the card effect before showing the message
+        game.setCurrentColor(selectedColor);
         game.applyCardEffect(coloredCard, currentPlayer);
         
-        String nextPlayerName = players.get(game.getCurrentPlayerIndex()).getName();
-        String message;
+        // Show appropriate message
+        String message = currentPlayer.getName() + " played " + wildCard.getValue();
         if (wildCard.getValue() == Card.Value.WildDrawFour) {
-            message = currentPlayer.getName() + " played Wild Draw Four and chose " + selectedColor + "!\n" +
-                     nextPlayerName + " must draw 4 cards and play any " + selectedColor + " card.";
+            Player nextPlayer = game.getPlayers().get(game.getCurrentPlayerIndex());
+            message += " and chose " + selectedColor + "!\n" + nextPlayer.getName() + " must draw 4 cards!";
         } else {
-            message = currentPlayer.getName() + " played Wild card and chose " + selectedColor + "!\n" +
-                     nextPlayerName + " must play any " + selectedColor + " card.";
+            message += " and chose " + selectedColor + "!";
         }
         
-        // Show the message in a dialog
-        JOptionPane.showMessageDialog(gameFrame, message, "Color Changed", JOptionPane.INFORMATION_MESSAGE);
+        ColorOptionPanel.showMessageDialog(gameFrame, message, "Card Played", 
+            ColorOptionPanel.INFORMATION_MESSAGE);
         
-        // Update the last card played display to show the new color
-        updateLastPlayedCard();
-        
-        // Update the game state
         updateGameState();
     }
 
@@ -376,11 +373,11 @@ public class GamePage {
                 filename = value + "_" + color + ".png";
             }
             
-            ImageIcon icon = cardImageMap.get(filename);
+            Imagecon icon = cardImageMap.get(filename);
             
             if (icon != null) {
                 Image scaled = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
-                card.setIcon(new ImageIcon(scaled));
+                card.setIcon(new Imagecon(scaled));
                 card.setPreferredSize(new Dimension(cardWidth, cardHeight));
                 card.setBorder(null);
                 card.setContentAreaFilled(false);
@@ -421,7 +418,7 @@ public class GamePage {
         try {
             URL imageUrl = getClass().getClassLoader().getResource("cardimages/" + filename);
             if (imageUrl != null) {
-                ImageIcon icon = new ImageIcon(imageUrl);
+                Imagecon icon = new Imagecon(imageUrl);
                 cardIcons.add(icon);
                 cardImageMap.put(filename, icon);
             } else {
@@ -447,11 +444,11 @@ public class GamePage {
             filename = value + "_" + color + ".png";
         }
         
-        ImageIcon icon = cardImageMap.get(filename);
+        Imagecon icon = cardImageMap.get(filename);
         
         if (icon != null) {
             Image scaled = icon.getImage().getScaledInstance(150, 230, Image.SCALE_SMOOTH);
-            label.setIcon(new ImageIcon(scaled));
+            label.setIcon(new Imagecon(scaled));
         } else {
             System.err.println("Image not found in map: " + filename);
         }
@@ -503,7 +500,7 @@ public class GamePage {
                     playableCard = drawnCard;
                 }
             } catch (IllegalStateException e) {
-                JOptionPane.showMessageDialog(gameFrame, "The deck is empty!");
+                ColorOptionPanel.showMessageDialog(gameFrame, "The deck is empty!");
                 break;
             }
         }
@@ -515,10 +512,10 @@ public class GamePage {
             
             updateLastPlayedCard();
         } else {
-            JOptionPane.showMessageDialog(gameFrame, 
+            ColorOptionPanel.showMessageDialog(gameFrame, 
                 message.toString() + "\n\n" + currentPlayer.getName() + " couldn't play any cards.",
                 "Bot's Move",
-                JOptionPane.INFORMATION_MESSAGE);
+                ColorOptionPanel.INFORMATION_MESSAGE);
             game.nextPlayer();
         }
     }
@@ -543,7 +540,7 @@ public class GamePage {
                 }
                 message.append(drawnCard);
             } catch (IllegalStateException e) {
-                JOptionPane.showMessageDialog(gameFrame, "The deck is empty!");
+                ColorOptionPanel.showMessageDialog(gameFrame, "The deck is empty!");
                 break;
             }
         }
@@ -552,8 +549,9 @@ public class GamePage {
             message.append("\n\nAfter drawing, you must play a " + requiredColor + " card.");
         }
         
-        JOptionPane.showMessageDialog(gameFrame, message.toString());
-        game.nextPlayer(); // Move to the next player after drawing cards
+        ColorOptionPanel.showMessageDialog(gameFrame, message.toString(), "Cards Drawn", 
+            ColorOptionPanel.INFORMATION_MESSAGE);
+        game.nextPlayer();
         updateGameState();
     }
 }
