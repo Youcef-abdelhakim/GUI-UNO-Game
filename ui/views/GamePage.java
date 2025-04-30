@@ -297,6 +297,11 @@ public class GamePage {
             options,
             options[0]);
         
+        if (choice == JOptionPane.CLOSED_OPTION) {
+            // If dialog was closed, default to Red
+            choice = 0;
+        }
+        
         Card.Color selectedColor = Card.Color.Red;
         switch (choice) {
             case 0: selectedColor = Card.Color.Red; break;
@@ -305,21 +310,30 @@ public class GamePage {
             case 3: selectedColor = Card.Color.Yellow; break;
         }
         
+        // Create a new card with the selected color
         Card coloredCard = new Card(selectedColor, wildCard.getValue());
         game.getDiscardPile().add(coloredCard);
+        
+        // Apply the card effect before showing the message
         game.applyCardEffect(coloredCard, currentPlayer);
         
         String nextPlayerName = players.get(game.getCurrentPlayerIndex()).getName();
         String message;
         if (wildCard.getValue() == Card.Value.WildDrawFour) {
             message = currentPlayer.getName() + " played Wild Draw Four and chose " + selectedColor + "!\n" +
-                     nextPlayerName + " must draw 4 cards and play a " + selectedColor + " card or a Wild card.";
+                     nextPlayerName + " must draw 4 cards and play any " + selectedColor + " card.";
         } else {
-            message = currentPlayer.getName() + " chose " + selectedColor + "!\n" +
-                     nextPlayerName + " must play a " + selectedColor + " card or a Wild card.";
+            message = currentPlayer.getName() + " played Wild card and chose " + selectedColor + "!\n" +
+                     nextPlayerName + " must play any " + selectedColor + " card.";
         }
+        
+        // Show the message in a dialog
         JOptionPane.showMessageDialog(gameFrame, message, "Color Changed", JOptionPane.INFORMATION_MESSAGE);
         
+        // Update the last card played display to show the new color
+        updateLastPlayedCard();
+        
+        // Update the game state
         updateGameState();
     }
 
@@ -492,6 +506,10 @@ public class GamePage {
 
     private void handleDrawTwoOrFour(int numberOfCards) {
         Player currentPlayer = players.get(game.getCurrentPlayerIndex());
+        ArrayList<Card> discardPile = game.getDiscardPile();
+        Card lastCard = discardPile.get(discardPile.size() - 1);
+        Card.Color requiredColor = lastCard.getColor();
+        
         StringBuilder message = new StringBuilder(currentPlayer.getName() + " must draw " + numberOfCards + " cards: ");
         ArrayList<Card> drawnCards = new ArrayList<>();
         
@@ -511,7 +529,12 @@ public class GamePage {
             }
         }
         
+        if (numberOfCards == 4) {
+            message.append("\n\nAfter drawing, you must play a " + requiredColor + " card.");
+        }
+        
         JOptionPane.showMessageDialog(gameFrame, message.toString());
+        game.nextPlayer(); // Move to the next player after drawing cards
         updateGameState();
     }
 }

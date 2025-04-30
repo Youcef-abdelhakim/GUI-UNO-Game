@@ -212,15 +212,22 @@ public class Game {
     }
 
     public boolean isValidMove(Card card) {
+        if (discardPile.isEmpty()) {
+            return true;
+        }
+        
         Card topCard = discardPile.get(discardPile.size() - 1);
+        
         // If the card is a Wild or WildDrawFour, it's always valid
         if (card.getValue() == Card.Value.Wild || card.getValue() == Card.Value.WildDrawFour) {
             return true;
         }
-        // If the top card is a Wild or WildDrawFour, only match the color
+        
+        // If the top card is a Wild or WildDrawFour, match the color
         if (topCard.getValue() == Card.Value.Wild || topCard.getValue() == Card.Value.WildDrawFour) {
             return card.getColor() == topCard.getColor();
         }
+        
         // For normal cards, match either color or value
         return card.getColor() == topCard.getColor() || card.getValue() == topCard.getValue();
     }
@@ -265,11 +272,9 @@ public class Game {
                 System.out.println("Wild Draw Four played!");
                 int drawFourIndex = (currentPlayerIndex + direction + players.size()) % players.size();
                 Player drawFourPlayer = players.get(drawFourIndex);
-                int cardsDrawn = 0;
                 for (int i = 0; i < 4; i++) {
                     if (!deck.isEmpty()) {
                         drawFourPlayer.addToHand(deck.drawCard());
-                        cardsDrawn++;
                     }
                 }
                 // Skip the player who had to draw cards
