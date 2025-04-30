@@ -62,21 +62,31 @@ public class GamePage {
         // Center panel for last card label and last card played
         Panel centerTopPanel = new Panel(new GridBagLayout());
         GridBagConstraints gbcCenter = new GridBagConstraints();
+
+        // Configure constraints for lastCardLabel
         gbcCenter.gridx = 0;
         gbcCenter.gridy = 0;
-        gbcCenter.anchor = GridBagConstraints.CENTER;
-
+        gbcCenter.anchor = GridBagConstraints.NORTHWEST; // Align to top-left of the cell
+        gbcCenter.insets = new Insets(45, 0, 0, 0); // Move 20px up, 30px left
         lastCardLabel = new Label("LAST CARD PLAYED", Label.CENTER);
         lastCardLabel.adjustFont(new Font("Arial", Font.BOLD, 30));
         lastCardLabel.setTextColor(Color.WHITE);
         centerTopPanel.add(lastCardLabel, gbcCenter);
 
+        // Configure constraints for lastCardPlayed (unchanged)
+        gbcCenter.gridx = 0;
         gbcCenter.gridy = 1;
+        gbcCenter.anchor = GridBagConstraints.CENTER; // Reset anchor for the card
+        gbcCenter.insets = new Insets(0, 0, 0, 0); // Reset insets
         lastCardPlayed = new Label();
         centerTopPanel.add(lastCardPlayed, gbcCenter);
 
         topPanel.add(centerTopPanel, BorderLayout.CENTER);
         gameFrame.addWidget(topPanel, BorderLayout.NORTH);
+
+        // Center panel with GridBagLayout to hold the handScrollPane
+        Panel centerPanel = new Panel(new GridBagLayout());
+        centerPanel.setBackground(new Color(0x042e54)); // Matches frame background
 
         // Player Hand Panel with FlowLayout for horizontal arrangement
         playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -84,9 +94,17 @@ public class GamePage {
         JScrollPane handScrollPane = new JScrollPane(playerHandPanel);
         handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        // Set preferred size to fit card height (150) plus minimal padding
-        handScrollPane.setPreferredSize(new Dimension(800, 550));
-        gameFrame.addWidget(handScrollPane, BorderLayout.CENTER);
+        handScrollPane.setPreferredSize(new Dimension(800, 150)); // Fixed height matching cards
+
+        // Add handScrollPane to centerPanel with a top margin to move it downward
+        GridBagConstraints gbcHand = new GridBagConstraints();
+        gbcHand.gridx = 0;
+        gbcHand.gridy = 0;
+        gbcHand.anchor = GridBagConstraints.CENTER;
+        gbcHand.insets = new Insets(20, 0, 0, 0); // 20px top margin to move it down
+        centerPanel.add(handScrollPane, gbcHand);
+
+        gameFrame.addWidget(centerPanel, BorderLayout.CENTER);
 
         // Bottom Panel with GridBagLayout for controls
         Panel bottomPanel = new Panel(new GridBagLayout());
@@ -122,6 +140,7 @@ public class GamePage {
         emptyDeckLabel.setTextColor(Color.WHITE);
 
         gameFrame.pack();
+        gameFrame.setSize(new Dimension(900, 700));
         gameFrame.setVisible(true);
     }
 
