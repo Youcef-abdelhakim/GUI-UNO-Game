@@ -215,30 +215,7 @@ public class GamePage {
                 if (playableCardFound && playableCard != null) {
                     if (playableCard.getValue() == Card.Value.Wild || playableCard.getValue() == Card.Value.WildDrawFour) {
                         // Handle Wild card color selection
-                        Object[] options = {"Red", "Blue", "Green", "Yellow"};
-                        int choice = JOptionPane.showOptionDialog(gameFrame,
-                            "Choose a color for the Wild card:",
-                            "Color Selection",
-                            JOptionPane.DEFAULT_OPTION,
-                            JOptionPane.QUESTION_MESSAGE,
-                            null,
-                            options,
-                            options[0]);
-                        
-                        Card.Color selectedColor = Card.Color.Red;
-                        switch (choice) {
-                            case 0: selectedColor = Card.Color.Red; break;
-                            case 1: selectedColor = Card.Color.Blue; break;
-                            case 2: selectedColor = Card.Color.Green; break;
-                            case 3: selectedColor = Card.Color.Yellow; break;
-                        }
-                        
-                        // Create a new card with the selected color
-                        Card coloredCard = new Card(selectedColor, playableCard.getValue());
-                        currentPlayer.getPlayerHnad().remove(playableCard);
-                        game.getDiscardPile().add(coloredCard);
-                        game.applyCardEffect(coloredCard, currentPlayer);
-                        drawMessage.append("\n\n" + currentPlayer.getName() + " chose " + selectedColor + " and automatically played the Wild card!");
+                        handleWildCardSelection(playableCard, currentPlayer);
                     } else {
                         // Handle normal playable card
                         currentPlayer.getPlayerHnad().remove(playableCard);
@@ -319,6 +296,19 @@ public class GamePage {
         Card coloredCard = new Card(selectedColor, wildCard.getValue());
         game.getDiscardPile().add(coloredCard);
         game.applyCardEffect(coloredCard, currentPlayer);
+        
+        // Show appropriate message based on card type
+        String nextPlayerName = players.get(game.getCurrentPlayerIndex()).getName();
+        String message;
+        if (wildCard.getValue() == Card.Value.WildDrawFour) {
+            message = currentPlayer.getName() + " played Wild Draw Four and chose " + selectedColor + "!\n" +
+                     nextPlayerName + " must draw 4 cards and play a " + selectedColor + " card or a Wild card.";
+        } else {
+            message = currentPlayer.getName() + " chose " + selectedColor + "!\n" +
+                     nextPlayerName + " must play a " + selectedColor + " card or a Wild card.";
+        }
+        JOptionPane.showMessageDialog(gameFrame, message, "Color Changed", JOptionPane.INFORMATION_MESSAGE);
+        
         updateGameState();
     }
 

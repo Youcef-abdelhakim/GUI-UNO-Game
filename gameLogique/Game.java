@@ -213,10 +213,16 @@ public class Game {
 
     public boolean isValidMove(Card card) {
         Card topCard = discardPile.get(discardPile.size() - 1);
-        if (topCard.getValue() == Card.Value.Wild || topCard.getValue() == Card.Value.WildDrawFour) {
+        // If the card is a Wild or WildDrawFour, it's always valid
+        if (card.getValue() == Card.Value.Wild || card.getValue() == Card.Value.WildDrawFour) {
             return true;
         }
-        return card.getColor() == topCard.getColor() || card.getValue() == topCard.getValue() || card.getColor() == Card.Color.Wild;
+        // If the top card is a Wild or WildDrawFour, only match the color
+        if (topCard.getValue() == Card.Value.Wild || topCard.getValue() == Card.Value.WildDrawFour) {
+            return card.getColor() == topCard.getColor();
+        }
+        // For normal cards, match either color or value
+        return card.getColor() == topCard.getColor() || card.getValue() == topCard.getValue();
     }
 
     public void applyCardEffect(Card card, Player currentPlayer) {
@@ -256,14 +262,17 @@ public class Game {
                 currentPlayerIndex = (currentPlayerIndex + direction + players.size()) % players.size();
                 break;
             case WildDrawFour:
-                System.out.println("Wild Draw Four played! Next player draws 4 cards");
+                System.out.println("Wild Draw Four played!");
                 int drawFourIndex = (currentPlayerIndex + direction + players.size()) % players.size();
                 Player drawFourPlayer = players.get(drawFourIndex);
+                int cardsDrawn = 0;
                 for (int i = 0; i < 4; i++) {
                     if (!deck.isEmpty()) {
                         drawFourPlayer.addToHand(deck.drawCard());
+                        cardsDrawn++;
                     }
                 }
+                // Skip the player who had to draw cards
                 currentPlayerIndex = (drawFourIndex + direction + players.size()) % players.size();
                 break;
             default:
