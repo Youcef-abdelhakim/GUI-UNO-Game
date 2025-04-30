@@ -44,57 +44,85 @@ public class GamePage {
 
     private void initializeUI() {
         gameFrame = new GameFrame("UNO Game", new Color(0x042e54), new Dimension(900, 700), null);
-        
+        gameFrame.setLayout(new BorderLayout());
+
         players = game.getPlayers();
         playersName = new String[players.size()];
         for (int i = 0; i < players.size(); i++) {
             playersName[i] = players.get(i).getName();
         }
 
+        // Top Panel with BorderLayout for centering
+        Panel topPanel = new Panel(new BorderLayout());
+        
+        // Player List Panel on the left
         playerListPanel = new PlayerListPanel(playersName);
-        playerListPanel.setBounds(30, 30, 200, 200);
-        gameFrame.addWidget(playerListPanel);
+        topPanel.add(playerListPanel, BorderLayout.WEST);
+
+        // Center panel for last card label and last card played
+        Panel centerTopPanel = new Panel(new GridBagLayout());
+        GridBagConstraints gbcCenter = new GridBagConstraints();
+        gbcCenter.gridx = 0;
+        gbcCenter.gridy = 0;
+        gbcCenter.anchor = GridBagConstraints.CENTER;
 
         lastCardLabel = new Label("LAST CARD PLAYED", Label.CENTER);
         lastCardLabel.adjustFont(new Font("Arial", Font.BOLD, 30));
         lastCardLabel.setTextColor(Color.WHITE);
-        lastCardLabel.setBounds(0, 10, 900, 50);
-        gameFrame.addWidget(lastCardLabel);
+        centerTopPanel.add(lastCardLabel, gbcCenter);
 
+        gbcCenter.gridy = 1;
         lastCardPlayed = new Label();
-        lastCardPlayed.setBounds(375, 110, 150, 230);
-        gameFrame.addWidget(lastCardPlayed);
+        centerTopPanel.add(lastCardPlayed, gbcCenter);
 
-        playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        topPanel.add(centerTopPanel, BorderLayout.CENTER);
+        gameFrame.addWidget(topPanel, BorderLayout.NORTH);
+
+        // Player Hand Panel with FlowLayout for horizontal arrangement
+        playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        playerHandPanel.setBackground(new Color(0xE0E0E0)); // Light gray background
         JScrollPane handScrollPane = new JScrollPane(playerHandPanel);
-        handScrollPane.setBounds(50, 400, 800, 185);
-        gameFrame.addWidget(handScrollPane);
+        handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        // Set preferred size to fit card height (150) plus minimal padding
+        handScrollPane.setPreferredSize(new Dimension(800, 550));
+        gameFrame.addWidget(handScrollPane, BorderLayout.CENTER);
+
+        // Bottom Panel with GridBagLayout for controls
+        Panel bottomPanel = new Panel(new GridBagLayout());
+        GridBagConstraints gbcBottom = new GridBagConstraints();
 
         currentPlayerLabel = new Label("", Label.LEFT);
         currentPlayerLabel.adjustFont(new Font("Arial", Font.BOLD, 20));
         currentPlayerLabel.setTextColor(Color.WHITE);
-        currentPlayerLabel.setBounds(50, 620, 300, 30);
-        gameFrame.addWidget(currentPlayerLabel);
+        gbcBottom.gridx = 0;
+        gbcBottom.gridy = 0;
+        gbcBottom.weightx = 1.0;
+        gbcBottom.anchor = GridBagConstraints.WEST;
+        bottomPanel.add(currentPlayerLabel, gbcBottom);
 
         drawCardBtn = new Button("Draw Card");
-        drawCardBtn.setBounds(700, 610, 150, 50);
         drawCardBtn.setBGColor(new Color(0x1a73e8));
         drawCardBtn.setForeground(Color.WHITE);
         drawCardBtn.adjustFont(new Font("Arial", Font.BOLD, 20));
         drawCardBtn.addActionListener(e -> handleDrawCard());
-        gameFrame.addWidget(drawCardBtn);
+        gbcBottom.gridx = 1;
+        gbcBottom.anchor = GridBagConstraints.EAST;
+        bottomPanel.add(drawCardBtn, gbcBottom);
 
+        gameFrame.addWidget(bottomPanel, BorderLayout.SOUTH);
+
+        // Additional labels (if needed)
         drawCardLabel = new Label("", Label.CENTER);
         drawCardLabel.adjustFont(new Font("Arial", Font.BOLD, 16));
         drawCardLabel.setTextColor(Color.WHITE);
-        drawCardLabel.setBounds(50, 650, 800, 30);
-        gameFrame.addWidget(drawCardLabel);
 
         emptyDeckLabel = new Label("", Label.CENTER);
         emptyDeckLabel.adjustFont(new Font("Arial", Font.BOLD, 16));
         emptyDeckLabel.setTextColor(Color.WHITE);
-        emptyDeckLabel.setBounds(50, 650, 800, 30);
-        gameFrame.addWidget(emptyDeckLabel);
+
+        gameFrame.pack();
+        gameFrame.setVisible(true);
     }
 
     private void initializeGame() {
@@ -168,7 +196,6 @@ public class GamePage {
         Player currentPlayer = players.get(game.getCurrentPlayerIndex());
         if (currentPlayer.getPlayerType().equals("Player")) {
             try {
-                // Check if player already has playable cards
                 boolean hasValidMove = false;
                 for (Card card : currentPlayer.getPlayerHnad()) {
                     if (game.isValidMove(card)) {
@@ -185,7 +212,6 @@ public class GamePage {
                     return;
                 }
                 
-                // Draw only one card
                 Card drawnCard = game.getDeck().drawCard();
                 currentPlayer.addToHand(drawnCard);
                 
@@ -208,15 +234,14 @@ public class GamePage {
                             drawMessage.append("\n\n" + currentPlayer.getName() + " played the drawn card!");
                         }
                     } else {
-                        game.nextPlayer(); // Move to next player if player chooses not to play
+                        game.nextPlayer();
                         drawMessage.append("\n\n" + currentPlayer.getName() + " chose not to play the drawn card.");
                     }
                 } else {
-                    game.nextPlayer(); // Move to next player if drawn card isn't playable
+                    game.nextPlayer();
                     drawMessage.append("\n\n" + currentPlayer.getName() + " couldn't play the drawn card.");
                 }
                 
-                // Show the result of drawing
                 JOptionPane.showMessageDialog(gameFrame,
                     drawMessage.toString(),
                     "Card Drawn",
@@ -284,7 +309,6 @@ public class GamePage {
         game.getDiscardPile().add(coloredCard);
         game.applyCardEffect(coloredCard, currentPlayer);
         
-        // Show appropriate message based on card type
         String nextPlayerName = players.get(game.getCurrentPlayerIndex()).getName();
         String message;
         if (wildCard.getValue() == Card.Value.WildDrawFour) {
@@ -325,7 +349,6 @@ public class GamePage {
                 Image scaled = icon.getImage().getScaledInstance(cardWidth, cardHeight, Image.SCALE_SMOOTH);
                 card.setIcon(new ImageIcon(scaled));
                 card.setPreferredSize(new Dimension(cardWidth, cardHeight));
-                card.setMaximumSize(new Dimension(cardWidth, cardHeight));
                 card.setBorder(null);
                 card.setContentAreaFilled(false);
                 card.addActionListener(e -> playCard(cardName));
@@ -463,7 +486,7 @@ public class GamePage {
                 message.toString() + "\n\n" + currentPlayer.getName() + " couldn't play any cards.",
                 "Bot's Move",
                 JOptionPane.INFORMATION_MESSAGE);
-            game.nextPlayer(); // Advance turn if no play
+            game.nextPlayer();
         }
     }
 
@@ -489,7 +512,6 @@ public class GamePage {
         }
         
         JOptionPane.showMessageDialog(gameFrame, message.toString());
-        // Turn advancement handled by applyCardEffect
         updateGameState();
     }
 }
