@@ -185,55 +185,42 @@ public class GamePage {
                     return;
                 }
                 
-                // Draw cards until a playable one is found or deck is empty
-                StringBuilder drawMessage = new StringBuilder(currentPlayer.getName() + " drew: ");
-                boolean playableCardFound = false;
-                Card playableCard = null;
-                int cardsDrawn = 0;
+                // Draw only one card
+                Card drawnCard = game.getDeck().drawCard();
+                currentPlayer.addToHand(drawnCard);
                 
-                while (!playableCardFound) {
-                    try {
-                        Card drawnCard = game.getDeck().drawCard();
-                        currentPlayer.addToHand(drawnCard);
-                        cardsDrawn++;
-                        
-                        if (cardsDrawn > 1) {
-                            drawMessage.append(", ");
-                        }
-                        drawMessage.append(drawnCard);
-                        
-                        if (game.isValidMove(drawnCard)) {
-                            playableCardFound = true;
-                            playableCard = drawnCard;
-                        }
-                    } catch (IllegalStateException e) {
-                        drawMessage.append("\nThe deck is empty!");
-                        break;
-                    }
-                }
+                StringBuilder drawMessage = new StringBuilder(currentPlayer.getName() + " drew: " + drawnCard);
                 
-                if (playableCardFound && playableCard != null) {
-                    if (playableCard.getValue() == Card.Value.Wild || playableCard.getValue() == Card.Value.WildDrawFour) {
-                        // Handle Wild card color selection
-                        handleWildCardSelection(playableCard, currentPlayer);
+                if (game.isValidMove(drawnCard)) {
+                    int choice = JOptionPane.showConfirmDialog(gameFrame,
+                        "You drew a playable card: " + drawnCard + "\nDo you want to play it?",
+                        "Play Drawn Card?",
+                        JOptionPane.YES_NO_OPTION);
+                    
+                    if (choice == JOptionPane.YES_OPTION) {
+                        currentPlayer.getPlayerHnad().remove(drawnCard);
+                        game.getDiscardPile().add(drawnCard);
+                        
+                        if (drawnCard.getValue() == Card.Value.Wild || drawnCard.getValue() == Card.Value.WildDrawFour) {
+                            handleWildCardSelection(drawnCard, currentPlayer);
+                        } else {
+                            game.applyCardEffect(drawnCard, currentPlayer);
+                            drawMessage.append("\n\n" + currentPlayer.getName() + " played the drawn card!");
+                        }
                     } else {
-                        // Handle normal playable card
-                        currentPlayer.getPlayerHnad().remove(playableCard);
-                        game.getDiscardPile().add(playableCard);
-                        game.applyCardEffect(playableCard, currentPlayer);
-                        drawMessage.append("\n\n" + currentPlayer.getName() + " automatically played: " + playableCard);
+                        game.nextPlayer(); // Move to next player if player chooses not to play
+                        drawMessage.append("\n\n" + currentPlayer.getName() + " chose not to play the drawn card.");
                     }
                 } else {
-                    // No playable card found (deck empty or only non-playable cards drawn)
-                    drawMessage.append("\n\n" + currentPlayer.getName() + " couldn't draw a playable card.");
-                    game.nextPlayer(); // Move to next player
+                    game.nextPlayer(); // Move to next player if drawn card isn't playable
+                    drawMessage.append("\n\n" + currentPlayer.getName() + " couldn't play the drawn card.");
                 }
                 
                 // Show the result of drawing
                 JOptionPane.showMessageDialog(gameFrame,
                     drawMessage.toString(),
-                    playableCardFound ? "Card Played" : "Cards Drawn",
-                    playableCardFound ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+                    "Card Drawn",
+                    JOptionPane.INFORMATION_MESSAGE);
                 
                 updateGameState();
                 
