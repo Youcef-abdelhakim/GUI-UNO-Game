@@ -214,6 +214,10 @@ public class GamePage {
         Player currentPlayer = players.get(game.getCurrentPlayerIndex());
         if (currentPlayer.getPlayerType().equals("Player")) {
             try {
+                if (game.getDeck().isEmpty()) {
+                    game.getDeck().reshuffle(game.getDiscardPile());
+                }
+                
                 boolean hasValidMove = false;
                 for (Card card : currentPlayer.getPlayerHnad()) {
                     if (game.isValidMove(card)) {
@@ -486,6 +490,10 @@ public class GamePage {
         
         while (!drawnPlayableCard && cardsDrawn < 10) {
             try {
+                if (game.getDeck().isEmpty()) {
+                    game.getDeck().reshuffle(game.getDiscardPile());
+                }
+                
                 Card drawnCard = game.getDeck().drawCard();
                 currentPlayer.addToHand(drawnCard);
                 cardsDrawn++;
@@ -531,6 +539,10 @@ public class GamePage {
         
         for (int i = 0; i < numberOfCards; i++) {
             try {
+                if (game.getDeck().isEmpty()) {
+                    game.getDeck().reshuffle(game.getDiscardPile());
+                }
+                
                 Card drawnCard = game.getDeck().drawCard();
                 currentPlayer.addToHand(drawnCard);
                 drawnCards.add(drawnCard);
