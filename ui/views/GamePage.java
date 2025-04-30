@@ -44,58 +44,110 @@ public class GamePage {
 
     private void initializeUI() {
         gameFrame = new GameFrame("UNO Game", new Color(0x042e54), new Dimension(900, 700), null);
-        
+        gameFrame.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); // spacing between components
+    
         players = game.getPlayers();
         playersName = new String[players.size()];
         for (int i = 0; i < players.size(); i++) {
             playersName[i] = players.get(i).getName();
         }
-
+    
+        // Player list panel
         playerListPanel = new PlayerListPanel(playersName);
-        playerListPanel.setBounds(30, 30, 200, 200);
-        gameFrame.addWidget(playerListPanel);
-
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridheight = 3;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0.2;
+        gbc.weighty = 1.0;
+        gameFrame.addWidget(playerListPanel, gbc);
+    
+        // Last card label
         lastCardLabel = new Label("LAST CARD PLAYED", Label.CENTER);
         lastCardLabel.adjustFont(new Font("Arial", Font.BOLD, 30));
         lastCardLabel.setTextColor(Color.WHITE);
-        lastCardLabel.setBounds(0, 10, 900, 50);
-        gameFrame.addWidget(lastCardLabel);
-
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0;
+        gameFrame.addWidget(lastCardLabel, gbc);
+    
+        // Last card played (display card)
         lastCardPlayed = new Label();
-        lastCardPlayed.setBounds(375, 110, 150, 230);
-        gameFrame.addWidget(lastCardPlayed);
-
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.gridheight = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 0.6;
+        gbc.weighty = 0.6;
+        gameFrame.addWidget(lastCardPlayed, gbc);
+    
+        // Player hand scrollable panel
         playerHandPanel = new Panel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         JScrollPane handScrollPane = new JScrollPane(playerHandPanel);
-        handScrollPane.setBounds(50, 400, 800, 185);
-        gameFrame.addWidget(handScrollPane);
-
+        handScrollPane.setPreferredSize(new Dimension(700, 185));
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.4;
+        gameFrame.addWidget(handScrollPane, gbc);
+    
+        // Current player label
         currentPlayerLabel = new Label("", Label.LEFT);
         currentPlayerLabel.adjustFont(new Font("Arial", Font.BOLD, 20));
         currentPlayerLabel.setTextColor(Color.WHITE);
-        currentPlayerLabel.setBounds(50, 620, 300, 30);
-        gameFrame.addWidget(currentPlayerLabel);
-
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 0.2;
+        gbc.weighty = 0;
+        gameFrame.addWidget(currentPlayerLabel, gbc);
+    
+        // Draw card button
         drawCardBtn = new Button("Draw Card");
-        drawCardBtn.setBounds(700, 610, 150, 50);
         drawCardBtn.setBGColor(new Color(0x1a73e8));
         drawCardBtn.setForeground(Color.WHITE);
         drawCardBtn.adjustFont(new Font("Arial", Font.BOLD, 20));
         drawCardBtn.addActionListener(e -> handleDrawCard());
-        gameFrame.addWidget(drawCardBtn);
-
+        gbc.gridx = 2;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.NONE;
+        gameFrame.addWidget(drawCardBtn, gbc);
+    
+        // Draw card label
         drawCardLabel = new Label("", Label.CENTER);
         drawCardLabel.adjustFont(new Font("Arial", Font.BOLD, 16));
         drawCardLabel.setTextColor(Color.WHITE);
-        drawCardLabel.setBounds(50, 650, 800, 30);
-        gameFrame.addWidget(drawCardLabel);
-
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gameFrame.addWidget(drawCardLabel, gbc);
+    
+        // Empty deck label
         emptyDeckLabel = new Label("", Label.CENTER);
         emptyDeckLabel.adjustFont(new Font("Arial", Font.BOLD, 16));
         emptyDeckLabel.setTextColor(Color.WHITE);
-        emptyDeckLabel.setBounds(50, 650, 800, 30);
-        gameFrame.addWidget(emptyDeckLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.gridwidth = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gameFrame.addWidget(emptyDeckLabel, gbc);
     }
+    
 
     private void initializeGame() {
         game.setupGame();
