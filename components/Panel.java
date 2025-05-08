@@ -72,8 +72,8 @@ public class Panel extends JPanel {
         scrollPane.getViewport().setOpaque(false);
         
         // Set fixed height for the panel
-        this.setPreferredSize(new Dimension(width * 2, height)); // Wide enough for many cards
-        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, height)); // Prevent vertical growth
+        this.setPreferredSize(new Dimension(width * 2, height));
+        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
         this.setMinimumSize(new Dimension(width, height)); // Minimum size
         
         return scrollPane;
