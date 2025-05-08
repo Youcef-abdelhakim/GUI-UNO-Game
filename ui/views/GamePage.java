@@ -325,7 +325,6 @@ public class GamePage {
             colorOptions[0]
         );
 
-        // Default to Red if dialog is closed
         Card.Color selectedColor = Card.Color.Red;
         if (selectedColorName != null) {
             for (int i = 0; i < colorOptions.length; i++) {
@@ -336,13 +335,12 @@ public class GamePage {
             }
         }
 
-        // Create new card with selected color
         Card coloredCard = new Card(selectedColor, wildCard.getValue());
         game.getDiscardPile().add(coloredCard);
         game.setCurrentColor(selectedColor);
         game.applyCardEffect(coloredCard, currentPlayer);
+
         
-        // Show appropriate message
         String message = currentPlayer.getName() + " played " + wildCard.getValue();
         if (wildCard.getValue() == Card.Value.WildDrawFour) {
             Player nextPlayer = game.getPlayers().get(game.getCurrentPlayerIndex());
