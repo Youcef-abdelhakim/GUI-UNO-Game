@@ -28,6 +28,7 @@ public class GameTitle extends JComponent {
         }
         setOpaque(false);
     }
+    
     public GameTitle() {
         super();
         Text gameTitle = new Text("UNO!!!", Util.loadCustomFont("src\\fonts\\Main font\\Roboto-Black.ttf", 50), Color.white);
