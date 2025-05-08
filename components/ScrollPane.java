@@ -27,7 +27,6 @@ public class ScrollPane extends JScrollPane {
     }
     
     private void initialize() {
-        // Custom initialization
         this.getVerticalScrollBar().setUnitIncrement(16);
         this.getHorizontalScrollBar().setUnitIncrement(16);
         this.setBorder(null);
