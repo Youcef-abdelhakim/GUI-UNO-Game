@@ -15,6 +15,8 @@ public class GameFrame extends JFrame {
         this.setVisible(true);
     }
 
+    // Overload functions for diffirent purposes
+
     public void addWidget(JComponent widget) {
         this.add(widget);
     }
@@ -22,7 +24,6 @@ public class GameFrame extends JFrame {
     public void addWidget(JComponent widget, Object constraints) {
         this.add(widget, constraints);
     }
-
 
     public void addWidget(Component component) {  // Changed from JComponent to Component
         this.add(component);
