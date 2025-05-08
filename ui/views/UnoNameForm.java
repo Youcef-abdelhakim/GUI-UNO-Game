@@ -12,7 +12,9 @@ import ui.widgets.UnoNameForm.Title;
 public class UnoNameForm extends UnoFrame {
     NamesForm namesForm;
     Buttons buttons;
+    
     public UnoNameForm(int numOfPlayer , int numOfHuman) {
+        
         super();
         Container container = new Container();
         container.setBackground(new Color(14, 62, 110)); 
